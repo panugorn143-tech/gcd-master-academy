@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Math Interactive Simulator - Complete Version</title>
+    <!-- โหลด Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'Sarabun', 'sans-serif'],
+                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                    },
+                    colors: { panel: '#0f172a' }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #f8fafc; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* สไตล์สำหรับเส้นหารสั้น */
+        .short-division-step { display: flex; align-items: flex-end; margin-bottom: 2px; justify-content: center;}
+        .divisor { width: 40px; text-align: right; padding-right: 12px; font-weight: 600; color: #38bdf8; }
+        .dividends { display: flex; gap: 16px; border-left: 2px solid #94a3b8; border-bottom: 2px solid #94a3b8; padding-left: 12px; padding-bottom: 4px; min-width: 150px; }
+        .dividend-item { width: 40px; text-align: center; color: white;}
+        .final-result-row { display: flex; align-items: flex-end; margin-top: 4px; justify-content: center;}
+        .final-result-spacer { width: 40px; padding-right: 12px; }
+        .final-result-numbers { display: flex; gap: 16px; padding-left: 14px; }
+        .final-result-item { width: 40px; text-align: center; border-bottom: 3px double #94a3b8; padding-bottom: 2px; color: white;}
+        
+        .animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+        
+        /* ซ่อนลูกศร default ของ details */
+        details > summary { list-style: none; }
+        details > summary::-webkit-details-marker { display: none; }
+    </style>
+</head>
+<body class="text-slate-800 h-screen flex flex-col overflow-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center shrink-0 z-10 shadow-sm">
+        <div class="flex items-center gap-3">
+            <div class="bg-indigo-600 text-white p-2 rounded-lg"><i class="ph-bold ph-chalkboard-teacher text-xl"></i></div>
+            <div>
+                <h1 class="font-bold text-lg leading-tight text-slate-800">Teacher Workspace (Complete Homework Edition)</h1>
+                <p class="text-xs text-slate-500 font-medium">เรื่อง: ตัวหารร่วมที่มากที่สุด (ห.ร.ม.) - ครบทุกข้อจากชีทเรียน</p>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Workspace -->
+    <main class="flex-1 flex overflow-hidden p-4 gap-4 bg-slate-50">
+        
+        <!-- Sidebar -->
+        <aside class="w-full md:w-80 lg:w-[400px] glass-panel rounded-xl shadow-sm border border-slate-200 flex flex-col overflow-hidden shrink-0">
+            <div class="p-5 border-b border-slate-200 bg-white">
+                <h2 class="text-xl font-bold flex items-center gap-2">
+                    <i class="ph-fill ph-list-dashes text-indigo-500 text-2xl"></i> หัวข้อการสอน
+                </h2>
+            </div>
+            
+            <div class="p-4 overflow-y-auto flex-1 space-y-6">
+                <!-- Section 7 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="ph-fill ph-divide text-emerald-500"></i> ส่วนที่ 7: การหารสั้น
+                    </h3>
+                    <div class="space-y-2">
+                        <button onclick="loadStaticModule('short-div-concept', this, 'emerald')" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 transition-all group shadow-sm active-module bg-emerald-50 border-emerald-300" id="default-btn">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-book-open text-emerald-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div><div class="font-semibold text-emerald-700 text-sm">บานหน้าต่างให้ความรู้</div></div>
+                            </div>
+                        </button>
+                        <button onclick="loadStaticModule('short-div-practice', this, 'emerald')" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-magic-wand text-emerald-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div><div class="font-semibold text-slate-700 text-sm">บานหน้าต่างสุ่มโจทย์</div></div>
+                            </div>
+                        </button>
+                        <button onclick="renderSelectionMenu('sec7', this)" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-emerald-300 hover:bg-emerald-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-notebook text-emerald-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div>
+                                    <div class="font-semibold text-slate-700 text-sm">บานหน้าต่างแบบฝึกหัด (ท้ายคาบ)</div>
+                                    <div class="text-xs text-emerald-600 bg-emerald-100 inline-block px-2 rounded mt-1">ตัวอย่าง + แบบฝึกหัด 10 ข้อ</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section 8 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="ph-fill ph-sword text-purple-500"></i> ส่วนที่ 8: วิธีของยุคลิด
+                    </h3>
+                    <div class="space-y-2">
+                        <button onclick="loadStaticModule('euclid-concept', this, 'purple')" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-book-open text-purple-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div><div class="font-semibold text-slate-700 text-sm">บานหน้าต่างให้ความรู้</div></div>
+                            </div>
+                        </button>
+                        <button onclick="loadStaticModule('euclid-practice', this, 'purple')" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-infinity text-purple-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div><div class="font-semibold text-slate-700 text-sm">บานหน้าต่างสุ่มโจทย์</div></div>
+                            </div>
+                        </button>
+                        <button onclick="renderSelectionMenu('sec8', this)" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-notebook text-purple-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div>
+                                    <div class="font-semibold text-slate-700 text-sm">บานหน้าต่างแบบฝึกหัด (ท้ายคาบ)</div>
+                                    <div class="text-xs text-purple-600 bg-purple-100 inline-block px-2 rounded mt-1">ตัวอย่าง + แบบฝึกหัด 10 ข้อ</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section 9 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="ph-fill ph-math-operations text-amber-500"></i> ส่วนที่ 9: การหา ห.ร.ม. แบบมีเศษ
+                    </h3>
+                    <div class="space-y-2">
+                        <button onclick="loadStaticModule('sec9-concept', this, 'amber')" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-book-open text-amber-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div><div class="font-semibold text-slate-700 text-sm">บานหน้าต่างให้ความรู้</div></div>
+                            </div>
+                        </button>
+                        <button onclick="renderSelectionMenu('sec9', this)" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-list-numbers text-amber-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div>
+                                    <div class="font-semibold text-slate-700 text-sm">บานหน้าต่างแบบฝึกหัด & การบ้าน</div>
+                                    <div class="text-xs text-amber-600 bg-amber-100 inline-block px-2 rounded mt-1">ครบทุกข้อ (มีทวนคำถาม+ดังนั้น)</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section 10 -->
+                <div>
+                    <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                        <i class="ph-fill ph-book-open-text text-rose-500"></i> ส่วนที่ 10: โจทย์ปัญหา ห.ร.ม.
+                    </h3>
+                    <div class="space-y-2">
+                        <button onclick="loadStaticModule('sec10-concept', this, 'rose')" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-book-open text-rose-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div><div class="font-semibold text-slate-700 text-sm">บานหน้าต่างให้ความรู้</div></div>
+                            </div>
+                        </button>
+                        <button onclick="renderSelectionMenu('sec10', this)" class="module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:border-rose-300 hover:bg-rose-50 transition-all group shadow-sm">
+                            <div class="flex items-center gap-3">
+                                <i class="ph-duotone ph-users-three text-rose-500 text-xl group-hover:scale-110 transition-transform"></i>
+                                <div>
+                                    <div class="font-semibold text-slate-700 text-sm">บานหน้าต่างแบบฝึกหัด & การบ้าน</div>
+                                    <div class="text-xs text-rose-600 bg-rose-100 inline-block px-2 rounded mt-1">ครบทุกข้อ (มีทวนคำถาม+ดังนั้น)</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Right Pane (Dynamic Content) -->
+        <section class="flex-1 bg-panel rounded-xl shadow-lg border border-slate-700 flex flex-col overflow-hidden relative">
+            <div class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex justify-between items-center shrink-0">
+                <div class="flex items-center gap-2 text-slate-300 font-mono text-sm">
+                    <i class="ph ph-chalkboard text-lg"></i> <span id="window-title">กระดานสอน</span>
+                </div>
+            </div>
+            <div id="dynamic-content" class="flex-1 p-6 overflow-y-auto text-slate-200 flex flex-col relative">
+                <!-- Content injected here -->
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // ==========================================
+        // CORE MATH & HELPERS
+        // ==========================================
+        function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
+        function gcdArr(arr) { return arr.reduce((a, b) => gcd(a, b)); }
+        
+        function findCommonPrime(numbers) {
+            const primes = [2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47];
+            for (let p of primes) {
+                if (numbers.every(n => n % p === 0)) return p;
+            }
+            return null;
+        }
+
+        function toThaiNumeral(num) {
+            const thaiNums = ['๐', '๑', '๒', '๓', '๔', '๕', '๖', '๗', '๘', '๙'];
+            return num.toString().split('').map(d => /\d/.test(d) ? thaiNums[d] : d).join('');
+        }
+
+        function getGcfCalcData(initialNumbers) {
+            let currentNums = [...initialNumbers];
+            let gcfPrimes = [];
+            let isDivisible = true;
+            while (isDivisible) {
+                let divisor = findCommonPrime(currentNums);
+                if (divisor) {
+                    gcfPrimes.push(divisor);
+                    currentNums = currentNums.map(n => n / divisor);
+                } else {
+                    isDivisible = false;
+                }
+            }
+            return {
+                primes: gcfPrimes,
+                calcString: gcfPrimes.length > 0 ? gcfPrimes.join(' &times; ') : '1',
+                gcf: gcfPrimes.length > 0 ? gcfPrimes.reduce((a,b)=>a*b,1) : 1
+            };
+        }
+
+        // สร้าง HTML สำหรับหารสั้น (เฉพาะกราฟิก)
+        function generateShortDivHTML(initialNumbers) {
+            let steps = [];
+            let currentNums = [...initialNumbers];
+            let isDivisible = true;
+            while (isDivisible) {
+                let divisor = findCommonPrime(currentNums);
+                if (divisor) {
+                    steps.push({ divisor: divisor, dividends: [...currentNums] });
+                    currentNums = currentNums.map(n => n / divisor);
+                } else {
+                    isDivisible = false;
+                }
+            }
+            let stepsHtml = '';
+            steps.forEach(step => {
+                let dividendsHtml = step.dividends.map(d => `<div class="dividend-item">${d}</div>`).join('');
+                stepsHtml += `<div class="short-division-step"><div class="divisor">${step.divisor}</div><div class="dividends">${dividendsHtml}</div></div>`;
+            });
+            let finalHtml = currentNums.map(r => `<div class="final-result-item">${r}</div>`).join('');
+            stepsHtml += `<div class="final-result-row"><div class="final-result-spacer"></div><div class="final-result-numbers">${finalHtml}</div></div>`;
+            return `<div class="font-mono text-xl md:text-2xl py-6 bg-slate-900 rounded-lg shadow-inner overflow-x-auto mb-4">${stepsHtml}</div>`;
+        }
+
+        // สร้างขั้นตอนยุคลิด
+        function solveEuclidean(a, b) {
+            let steps = [];
+            let currentA = Math.max(a, b);
+            let currentB = Math.min(a, b);
+            let r = currentA % currentB;
+            while (true) {
+                let q = Math.floor(currentA / currentB);
+                r = currentA % currentB;
+                steps.push({ a: currentA, b: currentB, q: q, r: r });
+                if (r === 0) break;
+                currentA = currentB;
+                currentB = r;
+            }
+            return { steps, gcf: steps[steps.length - 1].b };
+        }
+
+        function generateEuclidHTML(a, b) {
+            let sol = solveEuclidean(a, b);
+            let eqHtml = sol.steps.map((s, i) => {
+                let isLast = i === sol.steps.length - 1;
+                return `<div class="flex justify-center items-center gap-4 text-xl py-2 ${isLast ? 'bg-purple-500/20 text-white rounded font-bold' : 'text-slate-300'}">
+                    <div class="w-24 text-right">${s.a}</div> <div>=</div> <div class="w-24 text-center text-sky-400">${s.b}</div>
+                    <div>&times;</div> <div class="w-12 text-center text-amber-400">${s.q}</div> <div>+</div>
+                    <div class="w-16 text-left ${isLast ? 'text-emerald-400' : 'text-rose-400'}">${s.r}</div>
+                </div>`;
+            }).join('');
+            return `<div class="bg-slate-900 p-6 rounded-lg font-mono mb-4">${eqHtml}</div>`;
+        }
+
+        // ==========================================
+        // PROBLEM DATABASE FACTORY (อัปเดตใส่ "ดังนั้น" และ ทวนคำถาม)
+        // ==========================================
+        const problemDB = { 'sec7': [], 'sec8': [], 'sec9': [], 'sec10': [] };
+
+        // --- ส่วนที่ 7 Factory ---
+        function buildSec7(title, q, nums) {
+            let gcfData = getGcfCalcData(nums);
+            let primeStr = gcfData.calcString.replace(/&times;/g, '×');
+            return {
+                title, question: q,
+                steps: [
+                    { html: `<div class="bg-emerald-500/10 border-l-4 border-emerald-500 p-4 mb-4"><p class="text-emerald-400 font-bold text-lg">วิธีทำ หา ห.ร.ม. ของ ${nums.join(', ')}</p></div>` },
+                    { type: 'short_div', nums: nums },
+                    { html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">ห.ร.ม. ของ ${nums.join(', ')} คือ ${primeStr} = ${gcfData.gcf}</div>` },
+                    { html: `<div class="bg-emerald-500/10 border-l-4 border-emerald-500 p-4 mb-4"><p class="text-emerald-400 font-bold text-lg">ดังนั้น ห.ร.ม. ของ ${nums.join(', ')} คือ ${gcfData.gcf}</p></div>` },
+                    { html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-emerald-500 font-bold">ตอบ ห.ร.ม. คือ ${toThaiNumeral(gcfData.gcf)}</p></div>` }
+                ]
+            }
+        }
+
+        // --- ส่วนที่ 8 Factory ---
+        function buildSec8(title, q, nums) {
+            let ans = gcdArr(nums);
+            let steps = [];
+            if(nums.length === 2) {
+                 steps.push({ html: `<div class="bg-purple-500/10 border-l-4 border-purple-500 p-4 mb-4"><p class="text-purple-400 font-bold text-lg">วิธีทำ (วิธียุคลิด) หา ห.ร.ม. ของ ${nums.join(' และ ')}</p></div>` });
+                 steps.push({ type: 'euclid', nums: [nums[0], nums[1]] });
+            } else if (nums.length === 3) {
+                 steps.push({ html: `<div class="bg-purple-500/10 border-l-4 border-purple-500 p-4 mb-4"><p class="text-purple-400 font-bold text-lg">ขั้นที่ 1: วิธียุคลิด หา ห.ร.ม. คู่แรก (${nums[0]}, ${nums[1]})</p></div>` });
+                 steps.push({ type: 'euclid', nums: [nums[0], nums[1]] });
+                 let g1 = gcd(nums[0], nums[1]);
+                 steps.push({ html: `<div class="bg-purple-500/10 border-l-4 border-purple-500 p-4 mb-4"><p class="text-purple-400 font-bold text-lg">ขั้นที่ 2: นำ ห.ร.ม. ที่ได้ (${g1}) มาหา ห.ร.ม. คู่กับจำนวนที่เหลือ (${nums[2]})</p></div>` });
+                 steps.push({ type: 'euclid', nums: [g1, nums[2]] });
+            }
+            steps.push({ html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">ตัวหารในบรรทัดสุดท้ายคือ ${ans}</div>` });
+            steps.push({ html: `<div class="bg-purple-500/10 border-l-4 border-purple-500 p-4 mb-4"><p class="text-purple-400 font-bold text-lg">ดังนั้น ห.ร.ม. ของ ${nums.join(', ')} คือ ${ans}</p></div>` });
+            steps.push({ html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-purple-500 font-bold">ตอบ ห.ร.ม. คือ ${toThaiNumeral(ans)}</p></div>` });
+            return { title, question: q, steps };
+        }
+
+        // --- ส่วนที่ 9 Factory ---
+        function buildSec9(title, q, nums, rems, isUnknownRem = false, qSummary = "") {
+             if (isUnknownRem) {
+                 let diffs = [Math.abs(nums[0]-nums[1]), Math.abs(nums[1]-nums[2]), Math.abs(nums[0]-nums[2])];
+                 let gcfData = getGcfCalcData(diffs);
+                 let primeStr = gcfData.calcString.replace(/&times;/g, '×');
+                 let ans = gcfData.gcf;
+                 
+                 return { title, question: q, steps: [
+                     { html: `<div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 mb-4"><p class="text-amber-400 font-bold text-lg">ขั้นที่ 1: (กรณีไม่ทราบเศษ) หาผลต่างของตัวเลขแต่ละคู่</p></div>` },
+                     { html: `<div class="font-mono text-xl text-center py-4 bg-slate-900 rounded-lg mb-4">|${nums[0]} - ${nums[1]}| = <span class="text-white font-bold">${diffs[0]}</span><br>|${nums[1]} - ${nums[2]}| = <span class="text-white font-bold">${diffs[1]}</span><br>|${nums[0]} - ${nums[2]}| = <span class="text-white font-bold">${diffs[2]}</span></div>` },
+                     { html: `<div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-4"><p class="text-blue-400 font-bold text-lg">ขั้นที่ 2: หา ห.ร.ม. ของ ${diffs.join(', ')}</p></div>` },
+                     { type: 'short_div', nums: diffs },
+                     { html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">ห.ร.ม. ของ ${diffs.join(', ')} คือ ${primeStr} = ${ans}</div>` },
+                     { html: `<div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 mb-4"><p class="text-amber-400 font-bold text-lg">ดังนั้น ${qSummary} คือ ${ans}</p></div>` },
+                     { html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-amber-500 font-bold">ตอบ ${toThaiNumeral(ans)}</p></div>` }
+                 ]};
+             }
+             let targetNums = nums.map((n, i) => n - rems[i]);
+             let gcfData = getGcfCalcData(targetNums);
+             let primeStr = gcfData.calcString.replace(/&times;/g, '×');
+             let ans = gcfData.gcf;
+             let subHtml = nums.map((n, i) => `${n} - ${rems[i]} = <span class="text-white font-bold">${targetNums[i]}</span>`).join('<br>');
+             
+             return { title, question: q, steps: [
+                 { html: `<div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 mb-4"><p class="text-amber-400 font-bold text-lg">วิธีทำ นำเศษไปลบออกจากตัวตั้งก่อน</p></div>` },
+                 { html: `<div class="font-mono text-xl text-center py-4 bg-slate-900 rounded-lg mb-4">${subHtml}</div>` },
+                 { html: `<div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-4"><p class="text-blue-400 font-bold text-lg">หา ห.ร.ม. ของ ${targetNums.join(' , ')}</p></div>` },
+                 { type: 'short_div', nums: targetNums },
+                 { html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">ห.ร.ม. ของ ${targetNums.join(' , ')} คือ ${primeStr} = ${ans}</div>` },
+                 { html: `<div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 mb-4"><p class="text-amber-400 font-bold text-lg">ดังนั้น ${qSummary} คือ ${ans}</p></div>` },
+                 { html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-amber-500 font-bold">ตอบ ${toThaiNumeral(ans)}</p></div>` }
+             ]};
+        }
+
+        // --- ส่วนที่ 10 Factory ---
+        function buildSec10(title, q, nums, detail) {
+            let gcfData = getGcfCalcData(nums);
+            let ans = gcfData.gcf;
+            let steps = [];
+
+            steps.push({ html: `<div class="bg-rose-500/10 border-l-4 border-rose-500 p-4 mb-4"><p class="text-rose-400 font-bold text-lg">วิธีทำ หา ห.ร.ม. ของ ${nums.join(' , ')}</p></div>` });
+            steps.push({ type: 'short_div', nums: nums });
+
+            let str1 = `ห.ร.ม. ของ ${nums.join(' , ')} คือ ${gcfData.calcString.replace(/&times;/g, '×')} = ${ans}`;
+            steps.push({ html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">${str1}</div>` });
+
+            if (detail.contextGcf) {
+                steps.push({ html: `<div class="bg-emerald-500/10 border-l-4 border-emerald-500 p-4 mb-4"><p class="text-emerald-400 font-bold text-lg">${detail.contextGcf.replace(/\{ans\}/g, ans)}</p></div>` });
+            }
+
+            if (detail.itemTexts) {
+                let divLines = detail.itemTexts.map((text, i) => {
+                    return `${text} ${detail.divText} ${nums[i]} &divide; ${ans} = ${nums[i]/ans} ${detail.unit}`;
+                }).join('<br>');
+                steps.push({ html: `<div class="font-mono text-lg py-4 px-6 bg-slate-900 rounded-lg mb-4 text-slate-300 leading-loose">${divLines}</div>` });
+
+                let sumList = nums.map(n => n/ans);
+                let sumText = sumList.join(' + ');
+                let sum = sumList.reduce((a,b)=>a+b, 0);
+
+                let sumSummary = detail.contextSum.replace(/\{sumText\}/g, sumText).replace(/\{sum\}/g, sum);
+                steps.push({ html: `<div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-4"><p class="text-blue-400 font-bold text-lg">${sumSummary}</p></div>` });
+
+                let ansTextFinal = detail.ansText.replace(/\{ans\}/g, toThaiNumeral(ans)).replace(/\{sum\}/g, toThaiNumeral(sum));
+                steps.push({ html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-emerald-500 font-bold">${ansTextFinal}</p></div>` });
+            } else {
+                let ansTextFinal = detail.ansText.replace(/\{ans\}/g, toThaiNumeral(ans));
+                steps.push({ html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-emerald-500 font-bold">${ansTextFinal}</p></div>` });
+            }
+
+            return { title, question: q, steps };
+        }
+
+        // ==========================================
+        // POPULATE DATABASE (ตามชีทเรียน 100%)
+        // ==========================================
+        // ส่วนที่ 7
+        problemDB['sec7'].push(buildSec7("ตัวอย่าง", "จงหา ห.ร.ม. ของ 40 และ 60", [40, 60]));
+        problemDB['sec7'].push(buildSec7("ตัวอย่าง", "จงหา ห.ร.ม. ของ 28, 56 และ 70", [28, 56, 70]));
+        problemDB['sec7'].push(buildSec7("ตัวอย่าง", "จงหา ห.ร.ม. ของ 28 และ 112", [28, 112]));
+        problemDB['sec7'].push(buildSec7("ตัวอย่าง", "จงหา ห.ร.ม. ของ 180 และ 360", [180, 360]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 1", "จงหา ห.ร.ม. ของ 256 และ 384", [256, 384]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 2", "จงหา ห.ร.ม. ของ 288 และ 576", [288, 576]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 3", "จงหา ห.ร.ม. ของ 448 และ 504", [448, 504]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 4", "จงหา ห.ร.ม. ของ 324 และ 432", [324, 432]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 5", "จงหา ห.ร.ม. ของ 576 และ 945", [576, 945]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 6", "จงหา ห.ร.ม. ของ 64, 128 และ 234", [64, 128, 234]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 7", "จงหา ห.ร.ม. ของ 72, 180 และ 432", [72, 180, 432]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 8", "จงหา ห.ร.ม. ของ 150, 200 และ 450", [150, 200, 450]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 9", "จงหา ห.ร.ม. ของ 224, 280 และ 240", [224, 280, 240]));
+        problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 10", "จงหา ห.ร.ม. ของ 120, 180 และ 270", [120, 180, 270]));
+
+        // ส่วนที่ 8
+        problemDB['sec8'].push(buildSec8("ตัวอย่าง", "จงหา ห.ร.ม. ของ 864 และ 1,680", [864, 1680]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 1", "จงหา ห.ร.ม. ของ 68 และ 119", [68, 119]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 2", "จงหา ห.ร.ม. ของ 810 และ 1,035", [810, 1035]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 3", "จงหา ห.ร.ม. ของ 168 และ 264", [168, 264]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 4", "จงหา ห.ร.ม. ของ 377 และ 493", [377, 493]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 5", "จงหา ห.ร.ม. ของ 967 และ 2,477", [967, 2477]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 6", "จงหา ห.ร.ม. ของ 2,240 และ 3,976", [2240, 3976]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 7", "จงหา ห.ร.ม. ของ 648, 918 และ 1,242", [648, 918, 1242]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 8", "จงหา ห.ร.ม. ของ 480, 672 และ 1,380", [480, 672, 1380]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 9", "จงหา ห.ร.ม. ของ 184, 522 และ 677", [184, 522, 677]));
+        problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 10", "จงหา ห.ร.ม. ของ 648, 1,296 และ 2,664", [648, 1296, 2664]));
+
+        // ส่วนที่ 9
+        problemDB['sec9'].push(buildSec9("ตัวอย่างที่ 7", "จงหาจำนวนนับที่มากที่สุดที่หาร 129, 150 และ 192 แล้วเหลือเศษ 3 เท่ากัน", [129, 150, 192], [3,3,3], false, "จำนวนนับที่มากที่สุดที่หาร 129, 150 และ 192 แล้วเหลือเศษ 3"));
+        problemDB['sec9'].push(buildSec9("ตัวอย่างที่ 8", "จงหาจำนวนนับที่มากที่สุดที่หาร 46, 62 และ 93 แล้วเหลือเศษ 1, 2 และ 3 ตามลำดับ", [46, 62, 93], [1,2,3], false, "จำนวนนับที่มากที่สุดที่หาร 46, 62 และ 93 แล้วเหลือเศษ 1, 2 และ 3 ตามลำดับ"));
+        problemDB['sec9'].push(buildSec9("แบบฝึกหัด 1.4 (ข้อ 1)", "จงหาจำนวนที่มากที่สุด ซึ่งหาร 21 และ 45 แล้วเหลือเศษ 1 เท่ากัน", [21, 45], [1,1], false, "จำนวนที่มากที่สุด ซึ่งหาร 21 และ 45 แล้วเหลือเศษ 1 เท่ากัน"));
+        problemDB['sec9'].push(buildSec9("แบบฝึกหัด 1.4 (ข้อ 2)", "จงหาจำนวนที่มากที่สุด ซึ่งหาร 63 และ 206 แล้วเหลือเศษ 3 และ 6 ตามลำดับ", [63, 206], [3,6], false, "จำนวนที่มากที่สุด ซึ่งหาร 63 และ 206 แล้วเหลือเศษ 3 และ 6 ตามลำดับ"));
+        problemDB['sec9'].push(buildSec9("แบบฝึกหัด 1.4 (ข้อ 3)", "จงหาจำนวนที่มากที่สุด ซึ่งนำไปหาร 349, 573 และ 741 แล้วเหลือเศษเท่ากัน", [349, 573, 741], [], true, "จำนวนที่มากที่สุด ซึ่งนำไปหาร 349, 573 และ 741 แล้วเหลือเศษเท่ากัน"));
+        problemDB['sec9'].push(buildSec9("การบ้านข้อ 1", "จงหาจำนวนที่มากที่สุด ซึ่งหาร 42 และ 75 แล้วเหลือเศษ 2 และ 3 ตามลำดับ", [42, 75], [2,3], false, "จำนวนที่มากที่สุด ซึ่งหาร 42 และ 75 แล้วเหลือเศษ 2 และ 3 ตามลำดับ"));
+        problemDB['sec9'].push(buildSec9("การบ้านข้อ 2", "จงหาจำนวนที่มากที่สุด ซึ่งหาร 61 และ 99 แล้วเหลือเศษ 1 และ 3 ตามลำดับ", [61, 99], [1,3], false, "จำนวนที่มากที่สุด ซึ่งหาร 61 และ 99 แล้วเหลือเศษ 1 และ 3 ตามลำดับ"));
+        problemDB['sec9'].push(buildSec9("การบ้านข้อ 3", "จงหาจำนวนที่มากที่สุด ซึ่งนำไปหาร 26 และ 76 แล้วเหลือเศษ 1 เท่ากัน", [26, 76], [1,1], false, "จำนวนที่มากที่สุด ซึ่งนำไปหาร 26 และ 76 แล้วเหลือเศษ 1 เท่ากัน"));
+        problemDB['sec9'].push(buildSec9("การบ้านข้อ 4", "จงหาจำนวนที่มากที่สุด ซึ่งนำไปหาร 388 และ 458 แล้วเหลือเศษ 3 เท่ากัน", [388, 458], [3,3], false, "จำนวนที่มากที่สุด ซึ่งนำไปหาร 388 และ 458 แล้วเหลือเศษ 3 เท่ากัน"));
+        problemDB['sec9'].push(buildSec9("การบ้านข้อ 5", "จงหาจำนวนที่มากที่สุด ซึ่งนำไปหาร 111 และ 185 แล้วเหลือเศษ 3 และ 5 ตามลำดับ", [111, 185], [3,5], false, "จำนวนที่มากที่สุด ซึ่งนำไปหาร 111 และ 185 แล้วเหลือเศษ 3 และ 5 ตามลำดับ"));
+        problemDB['sec9'].push(buildSec9("การบ้านข้อ 6", "จงหาจำนวนที่มากที่สุด ซึ่งนำไปหาร 719 และ 1,059 แล้วเหลือเศษ 7 และ 11 ตามลำดับ", [719, 1059], [7,11], false, "จำนวนที่มากที่สุด ซึ่งนำไปหาร 719 และ 1,059 แล้วเหลือเศษ 7 และ 11 ตามลำดับ"));
+
+        // ส่วนที่ 10
+        problemDB['sec10'].push(buildSec10("ตัวอย่างที่ 9", "นทีมีเชือก 3 ขด ขดแรกยาว 12 เมตร ขดที่สองยาว 18 เมตร และขดที่สามยาว 30 เมตร เขาต้องการตัดเชือกเป็นเส้นสั้น ๆ ให้ยาวเท่า ๆ กัน และยาวที่สุด โดยไม่ให้เหลือเศษ นทีจะต้องตัดเชือกให้ยาวเส้นละกี่เมตร และจะตัดได้ทั้งหมดกี่เส้น", [12, 18, 30], {
+            contextGcf: "ดังนั้น เชือกที่ตัดแต่ละเส้นยาว {ans} เมตร",
+            itemTexts: ["เชือกขดแรกยาว 12 เมตร", "เชือกขดที่สองยาว 18 เมตร", "เชือกขดที่สามยาว 30 เมตร"], divText: "ตัดได้", unit: "เส้น",
+            contextSum: "ดังนั้น ตัดเชือกได้ทั้งหมด {sumText} = {sum} เส้น",
+            ansText: "ตอบ เชือกที่ตัดแต่ละเส้นยาว {ans} เมตร และตัดเชือกได้ทั้งหมด {sum} เส้น"
+        }));
+        problemDB['sec10'].push(buildSec10("แบบฝึกหัด 1.5 (ข้อ 1)", "เชือกเส้นหนึ่งยาว 132 เมตร อีกเส้นหนึ่งยาว 429 เมตร ถ้าต้องการนำเชือกทั้งสองเส้นไปใช้ โดยแบ่งเป็นท่อนเท่า ๆ กัน ให้แต่ละท่อนยาวที่สุด โดยไม่เหลือเศษ จะแบ่งได้ยาวท่อนละเท่าใด", [132, 429], {
+            contextGcf: "ดังนั้น จะแบ่งได้ยาวท่อนละ {ans} เมตร",
+            ansText: "ตอบ จะแบ่งได้ยาวท่อนละ {ans} เมตร"
+        }));
+        problemDB['sec10'].push(buildSec10("แบบฝึกหัด 1.5 (ข้อ 2)", "ลูกเสือกองร้อยหนึ่ง แบ่งเป็น 4 กลุ่ม จำนวนกลุ่มละ 51, 102 ,153 และ 204 คน ตามลำดับ เมื่อนำมาจัดเป็นหมู่ หมู่ละเท่า ๆ กัน จะได้ลูกเสือมากที่สุดหมู่ละกี่คน และจัดได้กี่หมู่", [51, 102, 153, 204], {
+            contextGcf: "ดังนั้น จะได้ลูกเสือมากที่สุดหมู่ละ {ans} คน",
+            itemTexts: ["กลุ่มที่ 1 มี 51 คน", "กลุ่มที่ 2 มี 102 คน", "กลุ่มที่ 3 มี 153 คน", "กลุ่มที่ 4 มี 204 คน"], divText: "จัดได้", unit: "หมู่",
+            contextSum: "ดังนั้น จัดได้ทั้งหมด {sumText} = {sum} หมู่",
+            ansText: "ตอบ จะได้ลูกเสือมากที่สุดหมู่ละ {ans} คน และจัดได้ {sum} หมู่"
+        }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 1", "มีฝรั่งอยู่ 56 ผล ชมพู่ 80 ผล ต้องการจัดใส่ถุง ถุงละเท่า ๆ กัน และให้มีผลไม้ในถุงมากที่สุด จะต้องใส่ผลไม้ถุงละกี่ผล", [56, 80], {
+            contextGcf: "ดังนั้น จะต้องใส่ผลไม้ถุงละ {ans} ผล",
+            ansText: "ตอบ จะต้องใส่ผลไม้ถุงละ {ans} ผล"
+        }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 2", "มีลูกเสือ 60 คน เนตรนารี 50 คน ถ้าจะแบ่งหมู่ให้เท่า ๆ กัน และมีสมาชิกในหมู่มากที่สุด จะได้หมู่ละกี่คน", [60, 50], {
+            contextGcf: "ดังนั้น จะได้หมู่ละ {ans} คน",
+            ansText: "ตอบ จะได้หมู่ละ {ans} คน"
+        }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 3", "เชือกเส้นแรกยาว 56 เมตร เส้นที่สองยาว 84 เมตร ต้องการตัดเป็นท่อนให้ยาวที่สุด และเท่ากันทั้งหมด จะต้องตัดเชือกยาวท่อนละกี่เมตร", [56, 84], {
+            contextGcf: "ดังนั้น จะต้องตัดเชือกยาวท่อนละ {ans} เมตร",
+            ansText: "ตอบ จะต้องตัดเชือกยาวท่อนละ {ans} เมตร"
+        }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 4", "เชือก 3 เส้น ยาว 204 , 216 และ 360 เมตร ตามลำดับ ถ้าต้องการตัดเชือกทั้งสามเส้นนี้ออกเป็นเส้นสั้นๆ และยาวเท่า ๆ กัน จะตัดเชือกได้ยาวที่สุดเส้นละกี่เมตร และตัดเชือกได้ทั้งหมดกี่เส้น", [204, 216, 360], {
+            contextGcf: "ดังนั้น จะตัดเชือกได้ยาวที่สุดเส้นละ {ans} เมตร",
+            itemTexts: ["เชือกเส้นแรกยาว 204 เมตร", "เชือกเส้นที่สองยาว 216 เมตร", "เชือกเส้นที่สามยาว 360 เมตร"], divText: "ตัดได้", unit: "เส้น",
+            contextSum: "ดังนั้น ตัดเชือกได้ทั้งหมด {sumText} = {sum} เส้น",
+            ansText: "ตอบ จะตัดเชือกได้ยาวที่สุดเส้นละ {ans} เมตร และตัดเชือกได้ทั้งหมด {sum} เส้น"
+        }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 5", "มีส้มอยู่ 3 เข่ง เข่งที่ 1 มี 70 ผล เข่งที่ 2 มี 168 ผล เข่งที่ 3 มี 182 ผล ต้องการแบ่งส้ม เหล่านี้ออกเป็นกอง กองละเท่า ๆ กัน โดยส้มแต่ละกองต้องเป็นส้มในเข่งเดียวกัน จะแบ่งส้มได้มากที่สุดกองละกี่ผล", [70, 168, 182], {
+            contextGcf: "ดังนั้น จะแบ่งส้มได้มากที่สุดกองละ {ans} ผล",
+            ansText: "ตอบ จะแบ่งส้มได้มากที่สุดกองละ {ans} ผล"
+        }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 6", "มีลูกบอลสีเหลือง 8 ลูก สีแดง 16 ลูก สีส้ม 20 ลูก ถ้าต้องการแบ่งใส่ถุง ถุงละเท่า ๆ กัน โดยให้แต่ละถุงบรรจุลูกบอลสีเดียวกัน จะแบ่งอย่างมากที่สุดได้ถุงละกี่ลูก และแบ่งลูกบอลได้ทั้งหมดกี่ถุง", [8, 16, 20], {
+            contextGcf: "ดังนั้น จะแบ่งอย่างมากที่สุดได้ถุงละ {ans} ลูก",
+            itemTexts: ["ลูกบอลสีเหลือง 8 ลูก", "ลูกบอลสีแดง 16 ลูก", "ลูกบอลสีส้ม 20 ลูก"], divText: "แบ่งได้", unit: "ถุง",
+            contextSum: "ดังนั้น แบ่งลูกบอลได้ทั้งหมด {sumText} = {sum} ถุง",
+            ansText: "ตอบ จะแบ่งอย่างมากที่สุดได้ถุงละ {ans} ลูก และแบ่งลูกบอลได้ทั้งหมด {sum} ถุง"
+        }));
+
+
+        // ==========================================
+        // UI & INTERACTION
+        // ==========================================
+        const staticTemplates = {
+            'short-div-concept': () => `
+                <div class="max-w-2xl mx-auto animate-fade-in">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-600 pb-4">
+                        <div class="bg-emerald-500/20 p-3 rounded-lg text-emerald-400"><i class="ph-fill ph-book-open text-3xl"></i></div>
+                        <div><h2 class="text-2xl font-bold text-white">ส่วนที่ 7: การหา ห.ร.ม. โดยวิธีหารสั้น</h2><p class="text-slate-400">บานหน้าต่างให้ความรู้</p></div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 shadow-inner mb-6">
+                        <h3 class="text-lg font-semibold text-emerald-400 mb-4">💡 หลักการ</h3>
+                        <ol class="list-decimal list-inside space-y-3 text-slate-300 text-lg leading-relaxed">
+                            <li>นำจำนวนใด ๆ ที่หารตัวตั้งทั้งหมดได้ลงตัว ให้นำมาหารทั้งหมดพร้อมกัน</li>
+                            <li>หารไปเรื่อยๆ จนกว่าจะ <span class="text-amber-400 font-bold bg-amber-400/10 px-2 py-1 rounded">ไม่มีจำนวนเฉพาะที่หารทุกตัวได้ลงตัว</span></li>
+                            <li>นำ "ตัวหาร" (ด้านหน้า) ทั้งหมดมา <span class="text-emerald-400 font-bold bg-emerald-400/10 px-2 py-1 rounded">คูณกัน</span> &rarr; ผลลัพธ์คือ ห.ร.ม.</li>
+                        </ol>
+                    </div>
+                </div>
+            `,
+            'short-div-practice': () => `
+                <div class="h-full flex flex-col animate-fade-in">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-600 pb-4 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-emerald-500/20 p-3 rounded-lg text-emerald-400"><i class="ph-fill ph-magic-wand text-3xl"></i></div>
+                            <div><h2 class="text-2xl font-bold text-white">ระบบสุ่มโจทย์: หารสั้น</h2></div>
+                        </div>
+                        <button onclick="generateShortDivRandom()" class="bg-emerald-500 hover:bg-emerald-400 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2"><i class="ph-bold ph-arrows-clockwise"></i> สุ่มโจทย์ใหม่</button>
+                    </div>
+                    <div id="random-container" class="flex-1 overflow-y-auto pb-10"></div>
+                </div>
+            `,
+            'euclid-concept': () => `
+                <div class="max-w-2xl mx-auto animate-fade-in">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-600 pb-4">
+                        <div class="bg-purple-500/20 p-3 rounded-lg text-purple-400"><i class="ph-fill ph-sword text-3xl"></i></div>
+                        <div><h2 class="text-2xl font-bold text-white">ส่วนที่ 8: วิธีของยุคลิด</h2><p class="text-slate-400">บานหน้าต่างให้ความรู้ (เคล็ดลับปราบเลขเยอะ)</p></div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 shadow-inner mb-6">
+                        <h3 class="text-lg font-semibold text-purple-400 mb-4">ขั้นตอนการทำ</h3>
+                        <ol class="list-decimal list-inside space-y-3 text-slate-300 text-lg leading-relaxed">
+                            <li>นำจำนวนที่ <span class="text-red-400 font-bold">มาก</span> ตั้ง หารด้วยจำนวนที่ <span class="text-blue-400 font-bold">น้อย</span></li>
+                            <li>ถ้าย้งมีเศษ ให้นำ <span class="text-white font-bold bg-slate-700 px-2 py-1 rounded">"ตัวหาร"</span> และ <span class="text-white font-bold bg-slate-700 px-2 py-1 rounded">"เศษ"</span> ในบรรทัดนั้น มาตั้งหารกันต่อ</li>
+                            <li>ทำซ้ำไปเรื่อยๆ จนกว่าเศษจะเป็น 0</li>
+                            <li>ตัวหารตัวสุดท้าย (ในบรรทัดที่เศษเป็น 0) คือ <span class="text-emerald-400 font-bold border-b-2 border-emerald-400">ห.ร.ม.</span></li>
+                        </ol>
+                    </div>
+                </div>
+            `,
+            'euclid-practice': () => `
+                 <div class="h-full flex flex-col animate-fade-in">
+                    <div class="flex justify-between items-center mb-6 border-b border-slate-600 pb-4 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <div class="bg-purple-500/20 p-3 rounded-lg text-purple-400"><i class="ph-fill ph-infinity text-3xl"></i></div>
+                            <div><h2 class="text-2xl font-bold text-white">ระบบสุ่มโจทย์: ยุคลิด</h2></div>
+                        </div>
+                        <button onclick="generateEuclidRandom()" class="bg-purple-500 hover:bg-purple-400 text-white px-6 py-2 rounded-lg font-semibold flex items-center gap-2"><i class="ph-bold ph-arrows-clockwise"></i> สุ่มโจทย์ใหม่</button>
+                    </div>
+                    <div id="random-container" class="flex-1 overflow-y-auto pb-10"></div>
+                </div>
+            `,
+            'sec9-concept': () => `
+                <div class="max-w-2xl mx-auto animate-fade-in">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-600 pb-4">
+                        <div class="bg-amber-500/20 p-3 rounded-lg text-amber-400"><i class="ph-fill ph-book-open text-3xl"></i></div>
+                        <div><h2 class="text-2xl font-bold text-white">ส่วนที่ 9: การหา ห.ร.ม. แบบมีเศษ</h2><p class="text-slate-400">บานหน้าต่างให้ความรู้</p></div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 shadow-inner mb-6 space-y-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-amber-400 mb-2">กรณีที่ 1: "เหลือเศษเท่ากัน"</h3>
+                            <p class="text-slate-300 text-lg">ให้นำตัวเลขที่กำหนดให้แต่ละตัว <span class="text-white font-bold bg-amber-500/20 px-2 py-1 rounded">ลบด้วยเศษนั้น</span> แล้วนำผลลัพธ์ที่ได้ไปหา ห.ร.ม.</p>
+                        </div>
+                        <div class="border-t border-slate-600 pt-6">
+                            <h3 class="text-lg font-semibold text-amber-400 mb-2">กรณีที่ 2: "เหลือเศษไม่เท่ากัน"</h3>
+                            <p class="text-slate-300 text-lg">ให้นำตัวเลขที่กำหนดให้แต่ละตัว <span class="text-white font-bold bg-amber-500/20 px-2 py-1 rounded">ลบด้วยเศษของมันตามลำดับ</span> แล้วนำผลลัพธ์ที่ได้ไปหา ห.ร.ม.</p>
+                        </div>
+                        <div class="border-t border-slate-600 pt-6">
+                            <h3 class="text-lg font-semibold text-amber-400 mb-2">กรณีที่ 3: "เหลือเศษเท่ากัน (แต่ไม่บอกว่าเศษเท่าไร)"</h3>
+                            <p class="text-slate-300 text-lg">ให้จับคู่ตัวเลขเพื่อ <span class="text-white font-bold bg-amber-500/20 px-2 py-1 rounded">หาผลต่าง</span> ให้ครบทุกคู่ แล้วนำผลต่างที่ได้ไปหา ห.ร.ม.</p>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'sec10-concept': () => `
+                <div class="max-w-2xl mx-auto animate-fade-in">
+                    <div class="flex items-center gap-3 mb-6 border-b border-slate-600 pb-4">
+                        <div class="bg-rose-500/20 p-3 rounded-lg text-rose-400"><i class="ph-fill ph-book-open text-3xl"></i></div>
+                        <div><h2 class="text-2xl font-bold text-white">ส่วนที่ 10: โจทย์ปัญหา ห.ร.ม.</h2><p class="text-slate-400">บานหน้าต่างให้ความรู้</p></div>
+                    </div>
+                    <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 shadow-inner mb-6">
+                        <h3 class="text-lg font-semibold text-rose-400 mb-4">🔑 คีย์เวิร์ดสำคัญ (วิเคราะห์โจทย์)</h3>
+                        <p class="text-slate-300 text-lg mb-4">หากในโจทย์มีคำว่า <span class="font-bold text-white bg-slate-700 px-2 rounded">มากที่สุด</span>, <span class="font-bold text-white bg-slate-700 px-2 rounded">ยาวที่สุด</span>, <span class="font-bold text-white bg-slate-700 px-2 rounded">แบ่งให้เท่าๆ กันโดยไม่เหลือเศษ</span> มักจะเป็นการหา ห.ร.ม.</p>
+                        
+                        <h3 class="text-lg font-semibold text-rose-400 mt-6 mb-4">📌 รูปแบบคำถามที่พบบ่อย (กดเพื่อดูตัวอย่าง)</h3>
+                        
+                        <!-- Accordion 1 -->
+                        <details class="bg-slate-700/50 rounded-lg border border-slate-600 mb-3 group">
+                            <summary class="p-4 font-semibold text-emerald-400 cursor-pointer flex justify-between items-center hover:bg-slate-700/80 transition-colors rounded-lg">
+                                <span>1. ถามขนาด หรือ ปริมาณที่มากที่สุด</span>
+                                <i class="ph-bold ph-caret-down group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <div class="p-4 pt-0 text-slate-300 border-t border-slate-600 mt-2 text-lg">
+                                <p class="mb-3 mt-3"><span class="text-white font-bold bg-slate-800 px-2 py-1 rounded">โจทย์:</span> มีฝรั่งอยู่ 56 ผล ชมพู่ 80 ผล ต้องการจัดใส่ถุง ถุงละเท่า ๆ กัน และให้มีผลไม้ในถุงมากที่สุด จะต้องใส่ผลไม้ถุงละกี่ผล</p>
+                                <div class="bg-emerald-500/10 p-3 rounded-lg border-l-4 border-emerald-500">
+                                    <p><span class="text-emerald-400 font-bold">วิธีคิด:</span> หา ห.ร.ม. ของ 56 และ 80 จะได้เท่ากับ 8</p>
+                                    <p class="mt-1"><span class="text-emerald-400 font-bold">ดังนั้น:</span> จะต้องใส่ผลไม้ถุงละ 8 ผล (นำค่า ห.ร.ม. มาตอบได้เลย)</p>
+                                </div>
+                            </div>
+                        </details>
+
+                        <!-- Accordion 2 -->
+                        <details class="bg-slate-700/50 rounded-lg border border-slate-600 mb-3 group">
+                            <summary class="p-4 font-semibold text-sky-400 cursor-pointer flex justify-between items-center hover:bg-slate-700/80 transition-colors rounded-lg">
+                                <span>2. ถามจำนวนชิ้น หรือ จำนวนส่วนทั้งหมด</span>
+                                <i class="ph-bold ph-caret-down group-open:rotate-180 transition-transform"></i>
+                            </summary>
+                            <div class="p-4 pt-0 text-slate-300 border-t border-slate-600 mt-2 text-lg">
+                                <p class="mb-3 mt-3"><span class="text-white font-bold bg-slate-800 px-2 py-1 rounded">โจทย์:</span> มีเชือก 12, 18 และ 30 เมตร ต้องการตัดเป็นเส้นสั้นๆ ให้ยาวเท่าๆ กันและยาวที่สุด จะตัดได้ทั้งหมดกี่เส้น</p>
+                                <div class="bg-sky-500/10 p-3 rounded-lg border-l-4 border-sky-500 space-y-2">
+                                    <p><span class="text-sky-400 font-bold">วิธีคิด:</span><br>1. หา ห.ร.ม. เพื่อหาความยาวเชือกแต่ละเส้น (ห.ร.ม. = 6 เมตร)</p>
+                                    <p>2. นำ ห.ร.ม. ไปหารความยาวเชือกแต่ละเส้น แล้วนำผลลัพธ์มาบวกกัน (12÷6=2, 18÷6=3, 30÷6=5)</p>
+                                    <p class="mt-1"><span class="text-sky-400 font-bold">ดังนั้น:</span> ตัดเชือกได้ทั้งหมด 2 + 3 + 5 = 10 เส้น</p>
+                                </div>
+                            </div>
+                        </details>
+
+                    </div>
+                </div>
+            `
+        };
+
+        function updateActiveButton(btnElement, colorPrefix) {
+            document.querySelectorAll('.module-btn').forEach(btn => {
+                btn.className = 'module-btn w-full text-left p-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-all group shadow-sm';
+                let title = btn.querySelector('.font-semibold');
+                title.classList.remove('text-emerald-700', 'text-purple-700', 'text-amber-700', 'text-rose-700');
+                title.classList.add('text-slate-700');
+            });
+            btnElement.classList.remove('bg-white', 'border-slate-200');
+            btnElement.classList.add(`bg-${colorPrefix}-50`, `border-${colorPrefix}-300`);
+            btnElement.querySelector('.font-semibold').classList.add(`text-${colorPrefix}-700`);
+        }
+
+        window.loadStaticModule = function(moduleId, btnElement, colorPrefix) {
+            updateActiveButton(btnElement, colorPrefix);
+            const contentArea = document.getElementById('dynamic-content');
+            let titleText = "กระดานสอน";
+            if(moduleId.includes('short')) titleText = "ส่วนที่ 7: หารสั้น";
+            if(moduleId.includes('euclid')) titleText = "ส่วนที่ 8: วิธีของยุคลิด";
+            if(moduleId.includes('sec9')) titleText = "ส่วนที่ 9: หารแบบมีเศษ";
+            if(moduleId.includes('sec10')) titleText = "ส่วนที่ 10: โจทย์ปัญหา";
+            document.getElementById('window-title').innerText = titleText;
+            contentArea.innerHTML = staticTemplates[moduleId]();
+            if (moduleId === 'short-div-practice') generateShortDivRandom();
+            if (moduleId === 'euclid-practice') generateEuclidRandom();
+        }
+
+        window.renderSelectionMenu = function(sectionKey, btnElement) {
+            const colors = { 'sec7': 'emerald', 'sec8': 'purple', 'sec9': 'amber', 'sec10': 'rose' };
+            const colorPrefix = colors[sectionKey];
+            if(btnElement) updateActiveButton(btnElement, colorPrefix);
+            const contentArea = document.getElementById('dynamic-content');
+            let t = "";
+            if (sectionKey==='sec7') t = "ส่วนที่ 7: แบบฝึกหัด";
+            if (sectionKey==='sec8') t = "ส่วนที่ 8: แบบฝึกหัด";
+            if (sectionKey==='sec9') t = "ส่วนที่ 9: แบบฝึกหัด & การบ้าน";
+            if (sectionKey==='sec10') t = "ส่วนที่ 10: แบบฝึกหัด & การบ้าน";
+            document.getElementById('window-title').innerText = t;
+
+            let listHtml = problemDB[sectionKey].map((prob, index) => `
+                <div onclick="startProblem('${sectionKey}', ${index})" class="bg-slate-800 border border-slate-700 p-5 rounded-xl hover:border-${colorPrefix}-500 hover:bg-slate-750 cursor-pointer transition-all group shadow-sm mb-4">
+                    <h3 class="text-lg font-bold text-white group-hover:text-${colorPrefix}-400 mb-2 flex items-center gap-2">
+                        <i class="ph-bold ph-play-circle"></i> ${prob.title}
+                    </h3>
+                    <p class="text-slate-400 text-sm leading-relaxed">${prob.question}</p>
+                </div>
+            `).join('');
+
+            contentArea.innerHTML = `
+                <div class="max-w-3xl mx-auto w-full animate-fade-in-up">
+                    <h2 class="text-2xl font-bold text-white mb-6">เลือกข้อที่ต้องการแสดงวิธีทำ</h2>
+                    ${listHtml}
+                </div>
+            `;
+        }
+
+        let currentProblemSteps = [];
+        let currentStepIndex = 0;
+
+        window.startProblem = function(sectionKey, index) {
+            const prob = problemDB[sectionKey][index];
+            currentProblemSteps = prob.steps;
+            currentStepIndex = 0;
+            const contentArea = document.getElementById('dynamic-content');
+            
+            contentArea.innerHTML = `
+                <div class="max-w-3xl mx-auto w-full flex flex-col h-full absolute inset-0 p-6">
+                    <div class="shrink-0 mb-4 border-b border-slate-700 pb-4">
+                        <button onclick="renderSelectionMenu('${sectionKey}', null)" class="text-slate-400 hover:text-white mb-2 flex items-center gap-1 text-sm transition-colors">
+                            <i class="ph-bold ph-arrow-left"></i> กลับไปหน้ารวมโจทย์
+                        </button>
+                        <h2 class="text-xl text-blue-400 font-bold mb-2">${prob.title}</h2>
+                        <div class="text-xl font-medium text-white leading-relaxed bg-slate-800 p-4 rounded-xl border border-slate-700 shadow-sm">
+                            "${prob.question}"
+                        </div>
+                    </div>
+                    <div id="steps-container" class="flex-1 overflow-y-auto pb-24 pr-2"></div>
+                    <div class="shrink-0 pt-4 mt-auto flex justify-center sticky bottom-0 bg-panel/90 backdrop-blur pb-2">
+                        <button id="next-step-btn" onclick="showNextStep()" class="bg-blue-600 hover:bg-blue-500 text-white px-8 py-3 rounded-xl font-bold text-lg transition-all shadow-[0_0_15px_rgba(37,99,235,0.4)] flex items-center gap-3 hover:-translate-y-1">
+                            เปิดขั้นตอนต่อไป <i class="ph-bold ph-caret-down"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.showNextStep = function() {
+            if (currentStepIndex < currentProblemSteps.length) {
+                const stepData = currentProblemSteps[currentStepIndex];
+                const container = document.getElementById('steps-container');
+                const stepEl = document.createElement('div');
+                stepEl.className = 'animate-fade-in-up';
+                
+                if (stepData.type === 'short_div') stepEl.innerHTML = generateShortDivHTML(stepData.nums);
+                else if (stepData.type === 'euclid') stepEl.innerHTML = generateEuclidHTML(stepData.nums[0], stepData.nums[1]);
+                else stepEl.innerHTML = stepData.html;
+                
+                container.appendChild(stepEl);
+                currentStepIndex++;
+                container.scrollTo({ top: container.scrollHeight, behavior: 'smooth' });
+
+                if (currentStepIndex >= currentProblemSteps.length) {
+                    const btn = document.getElementById('next-step-btn');
+                    btn.innerHTML = `<i class="ph-bold ph-check-circle"></i> จบข้อนี้`;
+                    btn.className = "bg-emerald-600 text-white px-8 py-3 rounded-xl font-bold text-lg cursor-default flex items-center gap-3";
+                    btn.onclick = null;
+                }
+            }
+        }
+
+        window.generateShortDivRandom = function() {
+            const container = document.getElementById('random-container');
+            const base = Math.floor(Math.random() * 8) + 2; 
+            const nums = [base * (Math.floor(Math.random()*5)+2) * 2, base * (Math.floor(Math.random()*5)+2) * 3];
+            let gcfData = getGcfCalcData(nums);
+            container.innerHTML = `
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-600 mb-6 shadow-lg">
+                    <h3 class="text-xl text-slate-300 mb-2 text-center">จงหา ห.ร.ม. ของ</h3>
+                    <div class="text-4xl font-bold text-white my-4 font-mono text-center tracking-widest bg-slate-900 py-8 rounded-lg shadow-inner">${nums.join(' และ ')}</div>
+                    <div class="mt-6 flex justify-center">
+                        <button onclick="this.nextElementSibling.classList.remove('hidden'); this.style.display='none';" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg flex items-center gap-2"><i class="ph-bold ph-eye"></i> ดูเฉลย</button>
+                        <div class="hidden w-full mt-4 animate-fade-in-up">
+                            ${generateShortDivHTML(nums)}
+                            <div class="text-center text-xl text-white mt-4 border border-slate-600 bg-slate-900 p-4 rounded-lg">ห.ร.ม. คือ ${gcfData.calcString.replace(/&times;/g, '×')} = <span class="font-bold text-emerald-400">${gcfData.gcf}</span></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        window.generateEuclidRandom = function() {
+            const container = document.getElementById('random-container');
+            let a = Math.floor(Math.random() * 2000) + 500;
+            let b = Math.floor(Math.random() * 1000) + 100;
+            if (b > a) [a, b] = [b, a];
+            let sol = solveEuclidean(a, b);
+            container.innerHTML = `
+                <div class="bg-slate-800 rounded-xl p-6 border border-slate-600 mb-6 shadow-lg">
+                    <h3 class="text-xl text-slate-300 mb-2 text-center">จงหา ห.ร.ม. ของ (วิธียุคลิด)</h3>
+                    <div class="text-4xl font-bold text-white my-4 font-mono text-center tracking-widest bg-slate-900 py-8 rounded-lg shadow-inner">${b} และ ${a}</div>
+                    <div class="mt-6 flex justify-center">
+                        <button onclick="this.nextElementSibling.classList.remove('hidden'); this.style.display='none';" class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg flex items-center gap-2"><i class="ph-bold ph-eye"></i> ดูเฉลยทีละบรรทัด</button>
+                        <div class="hidden w-full mt-4 animate-fade-in-up">
+                            ${generateEuclidHTML(a, b)}
+                            <div class="text-center text-2xl text-purple-400 font-bold mb-4 bg-slate-900 border border-slate-600 p-4 rounded-lg">ห.ร.ม. คือ ${sol.gcf}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Start App
+        window.onload = () => { document.getElementById('default-btn').click(); }
+    </script>
+</body>
+</html>
