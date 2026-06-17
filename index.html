@@ -4,17 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Math Interactive Simulator - Complete Version</title>
-    <!-- โหลด Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mali:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     <script>
         tailwind.config = {
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Inter', 'Sarabun', 'sans-serif'],
-                        mono: ['ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
+                        sans: ['Mali', 'sans-serif'],
+                        mono: ['Mali', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'monospace'],
                     },
                     colors: { panel: '#0f172a' }
                 }
@@ -22,6 +21,7 @@
         }
     </script>
     <style>
+        * { font-family: 'Mali', sans-serif !important; }
         body { background-color: #f8fafc; }
         .glass-panel {
             background: rgba(255, 255, 255, 0.9);
@@ -33,7 +33,6 @@
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* สไตล์สำหรับเส้นหารสั้น */
         .short-division-step { display: flex; align-items: flex-end; margin-bottom: 2px; justify-content: center;}
         .divisor { width: 40px; text-align: right; padding-right: 12px; font-weight: 600; color: #38bdf8; }
         .dividends { display: flex; gap: 16px; border-left: 2px solid #94a3b8; border-bottom: 2px solid #94a3b8; padding-left: 12px; padding-bottom: 4px; min-width: 150px; }
@@ -53,7 +52,6 @@
         }
         @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
         
-        /* ซ่อนลูกศร default ของ details */
         details > summary { list-style: none; }
         details > summary::-webkit-details-marker { display: none; }
     </style>
@@ -196,20 +194,16 @@
         <!-- Right Pane (Dynamic Content) -->
         <section class="flex-1 bg-panel rounded-xl shadow-lg border border-slate-700 flex flex-col overflow-hidden relative">
             <div class="bg-slate-800 border-b border-slate-700 px-4 py-3 flex justify-between items-center shrink-0">
-                <div class="flex items-center gap-2 text-slate-300 font-mono text-sm">
+                <div class="flex items-center gap-2 text-slate-300 text-sm">
                     <i class="ph ph-chalkboard text-lg"></i> <span id="window-title">กระดานสอน</span>
                 </div>
             </div>
             <div id="dynamic-content" class="flex-1 p-6 overflow-y-auto text-slate-200 flex flex-col relative">
-                <!-- Content injected here -->
             </div>
         </section>
     </main>
 
     <script>
-        // ==========================================
-        // CORE MATH & HELPERS
-        // ==========================================
         function gcd(a, b) { return b === 0 ? a : gcd(b, a % b); }
         function gcdArr(arr) { return arr.reduce((a, b) => gcd(a, b)); }
         
@@ -246,7 +240,6 @@
             };
         }
 
-        // สร้าง HTML สำหรับหารสั้น (เฉพาะกราฟิก)
         function generateShortDivHTML(initialNumbers) {
             let steps = [];
             let currentNums = [...initialNumbers];
@@ -267,10 +260,9 @@
             });
             let finalHtml = currentNums.map(r => `<div class="final-result-item">${r}</div>`).join('');
             stepsHtml += `<div class="final-result-row"><div class="final-result-spacer"></div><div class="final-result-numbers">${finalHtml}</div></div>`;
-            return `<div class="font-mono text-xl md:text-2xl py-6 bg-slate-900 rounded-lg shadow-inner overflow-x-auto mb-4">${stepsHtml}</div>`;
+            return `<div class="text-xl md:text-2xl py-6 bg-slate-900 rounded-lg shadow-inner overflow-x-auto mb-4">${stepsHtml}</div>`;
         }
 
-        // สร้างขั้นตอนยุคลิด
         function solveEuclidean(a, b) {
             let steps = [];
             let currentA = Math.max(a, b);
@@ -297,15 +289,11 @@
                     <div class="w-16 text-left ${isLast ? 'text-emerald-400' : 'text-rose-400'}">${s.r}</div>
                 </div>`;
             }).join('');
-            return `<div class="bg-slate-900 p-6 rounded-lg font-mono mb-4">${eqHtml}</div>`;
+            return `<div class="bg-slate-900 p-6 rounded-lg mb-4">${eqHtml}</div>`;
         }
 
-        // ==========================================
-        // PROBLEM DATABASE FACTORY (อัปเดตใส่ "ดังนั้น" และ ทวนคำถาม)
-        // ==========================================
         const problemDB = { 'sec7': [], 'sec8': [], 'sec9': [], 'sec10': [] };
 
-        // --- ส่วนที่ 7 Factory ---
         function buildSec7(title, q, nums) {
             let gcfData = getGcfCalcData(nums);
             let primeStr = gcfData.calcString.replace(/&times;/g, '×');
@@ -321,7 +309,6 @@
             }
         }
 
-        // --- ส่วนที่ 8 Factory ---
         function buildSec8(title, q, nums) {
             let ans = gcdArr(nums);
             let steps = [];
@@ -341,17 +328,15 @@
             return { title, question: q, steps };
         }
 
-        // --- ส่วนที่ 9 Factory ---
         function buildSec9(title, q, nums, rems, isUnknownRem = false, qSummary = "") {
              if (isUnknownRem) {
                  let diffs = [Math.abs(nums[0]-nums[1]), Math.abs(nums[1]-nums[2]), Math.abs(nums[0]-nums[2])];
                  let gcfData = getGcfCalcData(diffs);
                  let primeStr = gcfData.calcString.replace(/&times;/g, '×');
                  let ans = gcfData.gcf;
-                 
                  return { title, question: q, steps: [
                      { html: `<div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 mb-4"><p class="text-amber-400 font-bold text-lg">ขั้นที่ 1: (กรณีไม่ทราบเศษ) หาผลต่างของตัวเลขแต่ละคู่</p></div>` },
-                     { html: `<div class="font-mono text-xl text-center py-4 bg-slate-900 rounded-lg mb-4">|${nums[0]} - ${nums[1]}| = <span class="text-white font-bold">${diffs[0]}</span><br>|${nums[1]} - ${nums[2]}| = <span class="text-white font-bold">${diffs[1]}</span><br>|${nums[0]} - ${nums[2]}| = <span class="text-white font-bold">${diffs[2]}</span></div>` },
+                     { html: `<div class="text-xl text-center py-4 bg-slate-900 rounded-lg mb-4">|${nums[0]} - ${nums[1]}| = <span class="text-white font-bold">${diffs[0]}</span><br>|${nums[1]} - ${nums[2]}| = <span class="text-white font-bold">${diffs[1]}</span><br>|${nums[0]} - ${nums[2]}| = <span class="text-white font-bold">${diffs[2]}</span></div>` },
                      { html: `<div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-4"><p class="text-blue-400 font-bold text-lg">ขั้นที่ 2: หา ห.ร.ม. ของ ${diffs.join(', ')}</p></div>` },
                      { type: 'short_div', nums: diffs },
                      { html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">ห.ร.ม. ของ ${diffs.join(', ')} คือ ${primeStr} = ${ans}</div>` },
@@ -364,10 +349,9 @@
              let primeStr = gcfData.calcString.replace(/&times;/g, '×');
              let ans = gcfData.gcf;
              let subHtml = nums.map((n, i) => `${n} - ${rems[i]} = <span class="text-white font-bold">${targetNums[i]}</span>`).join('<br>');
-             
              return { title, question: q, steps: [
                  { html: `<div class="bg-amber-500/10 border-l-4 border-amber-500 p-4 mb-4"><p class="text-amber-400 font-bold text-lg">วิธีทำ นำเศษไปลบออกจากตัวตั้งก่อน</p></div>` },
-                 { html: `<div class="font-mono text-xl text-center py-4 bg-slate-900 rounded-lg mb-4">${subHtml}</div>` },
+                 { html: `<div class="text-xl text-center py-4 bg-slate-900 rounded-lg mb-4">${subHtml}</div>` },
                  { html: `<div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-4"><p class="text-blue-400 font-bold text-lg">หา ห.ร.ม. ของ ${targetNums.join(' , ')}</p></div>` },
                  { type: 'short_div', nums: targetNums },
                  { html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">ห.ร.ม. ของ ${targetNums.join(' , ')} คือ ${primeStr} = ${ans}</div>` },
@@ -376,49 +360,37 @@
              ]};
         }
 
-        // --- ส่วนที่ 10 Factory ---
         function buildSec10(title, q, nums, detail) {
             let gcfData = getGcfCalcData(nums);
             let ans = gcfData.gcf;
             let steps = [];
-
             steps.push({ html: `<div class="bg-rose-500/10 border-l-4 border-rose-500 p-4 mb-4"><p class="text-rose-400 font-bold text-lg">วิธีทำ หา ห.ร.ม. ของ ${nums.join(' , ')}</p></div>` });
             steps.push({ type: 'short_div', nums: nums });
-
             let str1 = `ห.ร.ม. ของ ${nums.join(' , ')} คือ ${gcfData.calcString.replace(/&times;/g, '×')} = ${ans}`;
             steps.push({ html: `<div class="text-center p-4 bg-slate-800 rounded-lg mb-4 text-white text-xl border border-slate-600">${str1}</div>` });
-
             if (detail.contextGcf) {
                 steps.push({ html: `<div class="bg-emerald-500/10 border-l-4 border-emerald-500 p-4 mb-4"><p class="text-emerald-400 font-bold text-lg">${detail.contextGcf.replace(/\{ans\}/g, ans)}</p></div>` });
             }
-
             if (detail.itemTexts) {
                 let divLines = detail.itemTexts.map((text, i) => {
                     return `${text} ${detail.divText} ${nums[i]} &divide; ${ans} = ${nums[i]/ans} ${detail.unit}`;
                 }).join('<br>');
-                steps.push({ html: `<div class="font-mono text-lg py-4 px-6 bg-slate-900 rounded-lg mb-4 text-slate-300 leading-loose">${divLines}</div>` });
-
+                steps.push({ html: `<div class="text-lg py-4 px-6 bg-slate-900 rounded-lg mb-4 text-slate-300 leading-loose">${divLines}</div>` });
                 let sumList = nums.map(n => n/ans);
                 let sumText = sumList.join(' + ');
                 let sum = sumList.reduce((a,b)=>a+b, 0);
-
                 let sumSummary = detail.contextSum.replace(/\{sumText\}/g, sumText).replace(/\{sum\}/g, sum);
                 steps.push({ html: `<div class="bg-blue-500/10 border-l-4 border-blue-500 p-4 mb-4"><p class="text-blue-400 font-bold text-lg">${sumSummary}</p></div>` });
-
                 let ansTextFinal = detail.ansText.replace(/\{ans\}/g, toThaiNumeral(ans)).replace(/\{sum\}/g, toThaiNumeral(sum));
                 steps.push({ html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-emerald-500 font-bold">${ansTextFinal}</p></div>` });
             } else {
                 let ansTextFinal = detail.ansText.replace(/\{ans\}/g, toThaiNumeral(ans));
                 steps.push({ html: `<div class="text-center p-6 bg-slate-800 rounded-lg mt-4 border border-slate-600"><p class="text-2xl text-white underline decoration-emerald-500 font-bold">${ansTextFinal}</p></div>` });
             }
-
             return { title, question: q, steps };
         }
 
-        // ==========================================
-        // POPULATE DATABASE (ตามชีทเรียน 100%)
-        // ==========================================
-        // ส่วนที่ 7
+        // Populate DB
         problemDB['sec7'].push(buildSec7("ตัวอย่าง", "จงหา ห.ร.ม. ของ 40 และ 60", [40, 60]));
         problemDB['sec7'].push(buildSec7("ตัวอย่าง", "จงหา ห.ร.ม. ของ 28, 56 และ 70", [28, 56, 70]));
         problemDB['sec7'].push(buildSec7("ตัวอย่าง", "จงหา ห.ร.ม. ของ 28 และ 112", [28, 112]));
@@ -434,7 +406,6 @@
         problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 9", "จงหา ห.ร.ม. ของ 224, 280 และ 240", [224, 280, 240]));
         problemDB['sec7'].push(buildSec7("แบบฝึกหัดข้อ 10", "จงหา ห.ร.ม. ของ 120, 180 และ 270", [120, 180, 270]));
 
-        // ส่วนที่ 8
         problemDB['sec8'].push(buildSec8("ตัวอย่าง", "จงหา ห.ร.ม. ของ 864 และ 1,680", [864, 1680]));
         problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 1", "จงหา ห.ร.ม. ของ 68 และ 119", [68, 119]));
         problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 2", "จงหา ห.ร.ม. ของ 810 และ 1,035", [810, 1035]));
@@ -447,7 +418,6 @@
         problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 9", "จงหา ห.ร.ม. ของ 184, 522 และ 677", [184, 522, 677]));
         problemDB['sec8'].push(buildSec8("แบบฝึกหัดข้อ 10", "จงหา ห.ร.ม. ของ 648, 1,296 และ 2,664", [648, 1296, 2664]));
 
-        // ส่วนที่ 9
         problemDB['sec9'].push(buildSec9("ตัวอย่างที่ 7", "จงหาจำนวนนับที่มากที่สุดที่หาร 129, 150 และ 192 แล้วเหลือเศษ 3 เท่ากัน", [129, 150, 192], [3,3,3], false, "จำนวนนับที่มากที่สุดที่หาร 129, 150 และ 192 แล้วเหลือเศษ 3"));
         problemDB['sec9'].push(buildSec9("ตัวอย่างที่ 8", "จงหาจำนวนนับที่มากที่สุดที่หาร 46, 62 และ 93 แล้วเหลือเศษ 1, 2 และ 3 ตามลำดับ", [46, 62, 93], [1,2,3], false, "จำนวนนับที่มากที่สุดที่หาร 46, 62 และ 93 แล้วเหลือเศษ 1, 2 และ 3 ตามลำดับ"));
         problemDB['sec9'].push(buildSec9("แบบฝึกหัด 1.4 (ข้อ 1)", "จงหาจำนวนที่มากที่สุด ซึ่งหาร 21 และ 45 แล้วเหลือเศษ 1 เท่ากัน", [21, 45], [1,1], false, "จำนวนที่มากที่สุด ซึ่งหาร 21 และ 45 แล้วเหลือเศษ 1 เท่ากัน"));
@@ -460,52 +430,15 @@
         problemDB['sec9'].push(buildSec9("การบ้านข้อ 5", "จงหาจำนวนที่มากที่สุด ซึ่งนำไปหาร 111 และ 185 แล้วเหลือเศษ 3 และ 5 ตามลำดับ", [111, 185], [3,5], false, "จำนวนที่มากที่สุด ซึ่งนำไปหาร 111 และ 185 แล้วเหลือเศษ 3 และ 5 ตามลำดับ"));
         problemDB['sec9'].push(buildSec9("การบ้านข้อ 6", "จงหาจำนวนที่มากที่สุด ซึ่งนำไปหาร 719 และ 1,059 แล้วเหลือเศษ 7 และ 11 ตามลำดับ", [719, 1059], [7,11], false, "จำนวนที่มากที่สุด ซึ่งนำไปหาร 719 และ 1,059 แล้วเหลือเศษ 7 และ 11 ตามลำดับ"));
 
-        // ส่วนที่ 10
-        problemDB['sec10'].push(buildSec10("ตัวอย่างที่ 9", "นทีมีเชือก 3 ขด ขดแรกยาว 12 เมตร ขดที่สองยาว 18 เมตร และขดที่สามยาว 30 เมตร เขาต้องการตัดเชือกเป็นเส้นสั้น ๆ ให้ยาวเท่า ๆ กัน และยาวที่สุด โดยไม่ให้เหลือเศษ นทีจะต้องตัดเชือกให้ยาวเส้นละกี่เมตร และจะตัดได้ทั้งหมดกี่เส้น", [12, 18, 30], {
-            contextGcf: "ดังนั้น เชือกที่ตัดแต่ละเส้นยาว {ans} เมตร",
-            itemTexts: ["เชือกขดแรกยาว 12 เมตร", "เชือกขดที่สองยาว 18 เมตร", "เชือกขดที่สามยาว 30 เมตร"], divText: "ตัดได้", unit: "เส้น",
-            contextSum: "ดังนั้น ตัดเชือกได้ทั้งหมด {sumText} = {sum} เส้น",
-            ansText: "ตอบ เชือกที่ตัดแต่ละเส้นยาว {ans} เมตร และตัดเชือกได้ทั้งหมด {sum} เส้น"
-        }));
-        problemDB['sec10'].push(buildSec10("แบบฝึกหัด 1.5 (ข้อ 1)", "เชือกเส้นหนึ่งยาว 132 เมตร อีกเส้นหนึ่งยาว 429 เมตร ถ้าต้องการนำเชือกทั้งสองเส้นไปใช้ โดยแบ่งเป็นท่อนเท่า ๆ กัน ให้แต่ละท่อนยาวที่สุด โดยไม่เหลือเศษ จะแบ่งได้ยาวท่อนละเท่าใด", [132, 429], {
-            contextGcf: "ดังนั้น จะแบ่งได้ยาวท่อนละ {ans} เมตร",
-            ansText: "ตอบ จะแบ่งได้ยาวท่อนละ {ans} เมตร"
-        }));
-        problemDB['sec10'].push(buildSec10("แบบฝึกหัด 1.5 (ข้อ 2)", "ลูกเสือกองร้อยหนึ่ง แบ่งเป็น 4 กลุ่ม จำนวนกลุ่มละ 51, 102 ,153 และ 204 คน ตามลำดับ เมื่อนำมาจัดเป็นหมู่ หมู่ละเท่า ๆ กัน จะได้ลูกเสือมากที่สุดหมู่ละกี่คน และจัดได้กี่หมู่", [51, 102, 153, 204], {
-            contextGcf: "ดังนั้น จะได้ลูกเสือมากที่สุดหมู่ละ {ans} คน",
-            itemTexts: ["กลุ่มที่ 1 มี 51 คน", "กลุ่มที่ 2 มี 102 คน", "กลุ่มที่ 3 มี 153 คน", "กลุ่มที่ 4 มี 204 คน"], divText: "จัดได้", unit: "หมู่",
-            contextSum: "ดังนั้น จัดได้ทั้งหมด {sumText} = {sum} หมู่",
-            ansText: "ตอบ จะได้ลูกเสือมากที่สุดหมู่ละ {ans} คน และจัดได้ {sum} หมู่"
-        }));
-        problemDB['sec10'].push(buildSec10("การบ้านข้อ 1", "มีฝรั่งอยู่ 56 ผล ชมพู่ 80 ผล ต้องการจัดใส่ถุง ถุงละเท่า ๆ กัน และให้มีผลไม้ในถุงมากที่สุด จะต้องใส่ผลไม้ถุงละกี่ผล", [56, 80], {
-            contextGcf: "ดังนั้น จะต้องใส่ผลไม้ถุงละ {ans} ผล",
-            ansText: "ตอบ จะต้องใส่ผลไม้ถุงละ {ans} ผล"
-        }));
-        problemDB['sec10'].push(buildSec10("การบ้านข้อ 2", "มีลูกเสือ 60 คน เนตรนารี 50 คน ถ้าจะแบ่งหมู่ให้เท่า ๆ กัน และมีสมาชิกในหมู่มากที่สุด จะได้หมู่ละกี่คน", [60, 50], {
-            contextGcf: "ดังนั้น จะได้หมู่ละ {ans} คน",
-            ansText: "ตอบ จะได้หมู่ละ {ans} คน"
-        }));
-        problemDB['sec10'].push(buildSec10("การบ้านข้อ 3", "เชือกเส้นแรกยาว 56 เมตร เส้นที่สองยาว 84 เมตร ต้องการตัดเป็นท่อนให้ยาวที่สุด และเท่ากันทั้งหมด จะต้องตัดเชือกยาวท่อนละกี่เมตร", [56, 84], {
-            contextGcf: "ดังนั้น จะต้องตัดเชือกยาวท่อนละ {ans} เมตร",
-            ansText: "ตอบ จะต้องตัดเชือกยาวท่อนละ {ans} เมตร"
-        }));
-        problemDB['sec10'].push(buildSec10("การบ้านข้อ 4", "เชือก 3 เส้น ยาว 204 , 216 และ 360 เมตร ตามลำดับ ถ้าต้องการตัดเชือกทั้งสามเส้นนี้ออกเป็นเส้นสั้นๆ และยาวเท่า ๆ กัน จะตัดเชือกได้ยาวที่สุดเส้นละกี่เมตร และตัดเชือกได้ทั้งหมดกี่เส้น", [204, 216, 360], {
-            contextGcf: "ดังนั้น จะตัดเชือกได้ยาวที่สุดเส้นละ {ans} เมตร",
-            itemTexts: ["เชือกเส้นแรกยาว 204 เมตร", "เชือกเส้นที่สองยาว 216 เมตร", "เชือกเส้นที่สามยาว 360 เมตร"], divText: "ตัดได้", unit: "เส้น",
-            contextSum: "ดังนั้น ตัดเชือกได้ทั้งหมด {sumText} = {sum} เส้น",
-            ansText: "ตอบ จะตัดเชือกได้ยาวที่สุดเส้นละ {ans} เมตร และตัดเชือกได้ทั้งหมด {sum} เส้น"
-        }));
-        problemDB['sec10'].push(buildSec10("การบ้านข้อ 5", "มีส้มอยู่ 3 เข่ง เข่งที่ 1 มี 70 ผล เข่งที่ 2 มี 168 ผล เข่งที่ 3 มี 182 ผล ต้องการแบ่งส้ม เหล่านี้ออกเป็นกอง กองละเท่า ๆ กัน โดยส้มแต่ละกองต้องเป็นส้มในเข่งเดียวกัน จะแบ่งส้มได้มากที่สุดกองละกี่ผล", [70, 168, 182], {
-            contextGcf: "ดังนั้น จะแบ่งส้มได้มากที่สุดกองละ {ans} ผล",
-            ansText: "ตอบ จะแบ่งส้มได้มากที่สุดกองละ {ans} ผล"
-        }));
-        problemDB['sec10'].push(buildSec10("การบ้านข้อ 6", "มีลูกบอลสีเหลือง 8 ลูก สีแดง 16 ลูก สีส้ม 20 ลูก ถ้าต้องการแบ่งใส่ถุง ถุงละเท่า ๆ กัน โดยให้แต่ละถุงบรรจุลูกบอลสีเดียวกัน จะแบ่งอย่างมากที่สุดได้ถุงละกี่ลูก และแบ่งลูกบอลได้ทั้งหมดกี่ถุง", [8, 16, 20], {
-            contextGcf: "ดังนั้น จะแบ่งอย่างมากที่สุดได้ถุงละ {ans} ลูก",
-            itemTexts: ["ลูกบอลสีเหลือง 8 ลูก", "ลูกบอลสีแดง 16 ลูก", "ลูกบอลสีส้ม 20 ลูก"], divText: "แบ่งได้", unit: "ถุง",
-            contextSum: "ดังนั้น แบ่งลูกบอลได้ทั้งหมด {sumText} = {sum} ถุง",
-            ansText: "ตอบ จะแบ่งอย่างมากที่สุดได้ถุงละ {ans} ลูก และแบ่งลูกบอลได้ทั้งหมด {sum} ถุง"
-        }));
-
+        problemDB['sec10'].push(buildSec10("ตัวอย่างที่ 9", "นทีมีเชือก 3 ขด ขดแรกยาว 12 เมตร ขดที่สองยาว 18 เมตร และขดที่สามยาว 30 เมตร เขาต้องการตัดเชือกเป็นเส้นสั้น ๆ ให้ยาวเท่า ๆ กัน และยาวที่สุด โดยไม่ให้เหลือเศษ นทีจะต้องตัดเชือกให้ยาวเส้นละกี่เมตร และจะตัดได้ทั้งหมดกี่เส้น", [12, 18, 30], { contextGcf: "ดังนั้น เชือกที่ตัดแต่ละเส้นยาว {ans} เมตร", itemTexts: ["เชือกขดแรกยาว 12 เมตร", "เชือกขดที่สองยาว 18 เมตร", "เชือกขดที่สามยาว 30 เมตร"], divText: "ตัดได้", unit: "เส้น", contextSum: "ดังนั้น ตัดเชือกได้ทั้งหมด {sumText} = {sum} เส้น", ansText: "ตอบ เชือกที่ตัดแต่ละเส้นยาว {ans} เมตร และตัดเชือกได้ทั้งหมด {sum} เส้น" }));
+        problemDB['sec10'].push(buildSec10("แบบฝึกหัด 1.5 (ข้อ 1)", "เชือกเส้นหนึ่งยาว 132 เมตร อีกเส้นหนึ่งยาว 429 เมตร ถ้าต้องการนำเชือกทั้งสองเส้นไปใช้ โดยแบ่งเป็นท่อนเท่า ๆ กัน ให้แต่ละท่อนยาวที่สุด โดยไม่เหลือเศษ จะแบ่งได้ยาวท่อนละเท่าใด", [132, 429], { contextGcf: "ดังนั้น จะแบ่งได้ยาวท่อนละ {ans} เมตร", ansText: "ตอบ จะแบ่งได้ยาวท่อนละ {ans} เมตร" }));
+        problemDB['sec10'].push(buildSec10("แบบฝึกหัด 1.5 (ข้อ 2)", "ลูกเสือกองร้อยหนึ่ง แบ่งเป็น 4 กลุ่ม จำนวนกลุ่มละ 51, 102 ,153 และ 204 คน ตามลำดับ เมื่อนำมาจัดเป็นหมู่ หมู่ละเท่า ๆ กัน จะได้ลูกเสือมากที่สุดหมู่ละกี่คน และจัดได้กี่หมู่", [51, 102, 153, 204], { contextGcf: "ดังนั้น จะได้ลูกเสือมากที่สุดหมู่ละ {ans} คน", itemTexts: ["กลุ่มที่ 1 มี 51 คน", "กลุ่มที่ 2 มี 102 คน", "กลุ่มที่ 3 มี 153 คน", "กลุ่มที่ 4 มี 204 คน"], divText: "จัดได้", unit: "หมู่", contextSum: "ดังนั้น จัดได้ทั้งหมด {sumText} = {sum} หมู่", ansText: "ตอบ จะได้ลูกเสือมากที่สุดหมู่ละ {ans} คน และจัดได้ {sum} หมู่" }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 1", "มีฝรั่งอยู่ 56 ผล ชมพู่ 80 ผล ต้องการจัดใส่ถุง ถุงละเท่า ๆ กัน และให้มีผลไม้ในถุงมากที่สุด จะต้องใส่ผลไม้ถุงละกี่ผล", [56, 80], { contextGcf: "ดังนั้น จะต้องใส่ผลไม้ถุงละ {ans} ผล", ansText: "ตอบ จะต้องใส่ผลไม้ถุงละ {ans} ผล" }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 2", "มีลูกเสือ 60 คน เนตรนารี 50 คน ถ้าจะแบ่งหมู่ให้เท่า ๆ กัน และมีสมาชิกในหมู่มากที่สุด จะได้หมู่ละกี่คน", [60, 50], { contextGcf: "ดังนั้น จะได้หมู่ละ {ans} คน", ansText: "ตอบ จะได้หมู่ละ {ans} คน" }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 3", "เชือกเส้นแรกยาว 56 เมตร เส้นที่สองยาว 84 เมตร ต้องการตัดเป็นท่อนให้ยาวที่สุด และเท่ากันทั้งหมด จะต้องตัดเชือกยาวท่อนละกี่เมตร", [56, 84], { contextGcf: "ดังนั้น จะต้องตัดเชือกยาวท่อนละ {ans} เมตร", ansText: "ตอบ จะต้องตัดเชือกยาวท่อนละ {ans} เมตร" }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 4", "เชือก 3 เส้น ยาว 204 , 216 และ 360 เมตร ตามลำดับ ถ้าต้องการตัดเชือกทั้งสามเส้นนี้ออกเป็นเส้นสั้นๆ และยาวเท่า ๆ กัน จะตัดเชือกได้ยาวที่สุดเส้นละกี่เมตร และตัดเชือกได้ทั้งหมดกี่เส้น", [204, 216, 360], { contextGcf: "ดังนั้น จะตัดเชือกได้ยาวที่สุดเส้นละ {ans} เมตร", itemTexts: ["เชือกเส้นแรกยาว 204 เมตร", "เชือกเส้นที่สองยาว 216 เมตร", "เชือกเส้นที่สามยาว 360 เมตร"], divText: "ตัดได้", unit: "เส้น", contextSum: "ดังนั้น ตัดเชือกได้ทั้งหมด {sumText} = {sum} เส้น", ansText: "ตอบ จะตัดเชือกได้ยาวที่สุดเส้นละ {ans} เมตร และตัดเชือกได้ทั้งหมด {sum} เส้น" }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 5", "มีส้มอยู่ 3 เข่ง เข่งที่ 1 มี 70 ผล เข่งที่ 2 มี 168 ผล เข่งที่ 3 มี 182 ผล ต้องการแบ่งส้มเหล่านี้ออกเป็นกอง กองละเท่า ๆ กัน โดยส้มแต่ละกองต้องเป็นส้มในเข่งเดียวกัน จะแบ่งส้มได้มากที่สุดกองละกี่ผล", [70, 168, 182], { contextGcf: "ดังนั้น จะแบ่งส้มได้มากที่สุดกองละ {ans} ผล", ansText: "ตอบ จะแบ่งส้มได้มากที่สุดกองละ {ans} ผล" }));
+        problemDB['sec10'].push(buildSec10("การบ้านข้อ 6", "มีลูกบอลสีเหลือง 8 ลูก สีแดง 16 ลูก สีส้ม 20 ลูก ถ้าต้องการแบ่งใส่ถุง ถุงละเท่า ๆ กัน โดยให้แต่ละถุงบรรจุลูกบอลสีเดียวกัน จะแบ่งอย่างมากที่สุดได้ถุงละกี่ลูก และแบ่งลูกบอลได้ทั้งหมดกี่ถุง", [8, 16, 20], { contextGcf: "ดังนั้น จะแบ่งอย่างมากที่สุดได้ถุงละ {ans} ลูก", itemTexts: ["ลูกบอลสีเหลือง 8 ลูก", "ลูกบอลสีแดง 16 ลูก", "ลูกบอลสีส้ม 20 ลูก"], divText: "แบ่งได้", unit: "ถุง", contextSum: "ดังนั้น แบ่งลูกบอลได้ทั้งหมด {sumText} = {sum} ถุง", ansText: "ตอบ จะแบ่งอย่างมากที่สุดได้ถุงละ {ans} ลูก และแบ่งลูกบอลได้ทั้งหมด {sum} ถุง" }));
 
         // ==========================================
         // UI & INTERACTION
@@ -599,10 +532,7 @@
                     <div class="bg-slate-800/50 rounded-xl p-6 border border-slate-700 shadow-inner mb-6">
                         <h3 class="text-lg font-semibold text-rose-400 mb-4">🔑 คีย์เวิร์ดสำคัญ (วิเคราะห์โจทย์)</h3>
                         <p class="text-slate-300 text-lg mb-4">หากในโจทย์มีคำว่า <span class="font-bold text-white bg-slate-700 px-2 rounded">มากที่สุด</span>, <span class="font-bold text-white bg-slate-700 px-2 rounded">ยาวที่สุด</span>, <span class="font-bold text-white bg-slate-700 px-2 rounded">แบ่งให้เท่าๆ กันโดยไม่เหลือเศษ</span> มักจะเป็นการหา ห.ร.ม.</p>
-                        
-                        <h3 class="text-lg font-semibold text-rose-400 mt-6 mb-4">📌 รูปแบบคำถามที่พบบ่อย (กดเพื่อดูตัวอย่าง)</h3>
-                        
-                        <!-- Accordion 1 -->
+                        <h3 class="text-lg font-semibold text-rose-400 mt-6 mb-4">📌 รูปแบบคำถามที่พบบ่อย</h3>
                         <details class="bg-slate-700/50 rounded-lg border border-slate-600 mb-3 group">
                             <summary class="p-4 font-semibold text-emerald-400 cursor-pointer flex justify-between items-center hover:bg-slate-700/80 transition-colors rounded-lg">
                                 <span>1. ถามขนาด หรือ ปริมาณที่มากที่สุด</span>
@@ -612,12 +542,10 @@
                                 <p class="mb-3 mt-3"><span class="text-white font-bold bg-slate-800 px-2 py-1 rounded">โจทย์:</span> มีฝรั่งอยู่ 56 ผล ชมพู่ 80 ผล ต้องการจัดใส่ถุง ถุงละเท่า ๆ กัน และให้มีผลไม้ในถุงมากที่สุด จะต้องใส่ผลไม้ถุงละกี่ผล</p>
                                 <div class="bg-emerald-500/10 p-3 rounded-lg border-l-4 border-emerald-500">
                                     <p><span class="text-emerald-400 font-bold">วิธีคิด:</span> หา ห.ร.ม. ของ 56 และ 80 จะได้เท่ากับ 8</p>
-                                    <p class="mt-1"><span class="text-emerald-400 font-bold">ดังนั้น:</span> จะต้องใส่ผลไม้ถุงละ 8 ผล (นำค่า ห.ร.ม. มาตอบได้เลย)</p>
+                                    <p class="mt-1"><span class="text-emerald-400 font-bold">ดังนั้น:</span> จะต้องใส่ผลไม้ถุงละ 8 ผล</p>
                                 </div>
                             </div>
                         </details>
-
-                        <!-- Accordion 2 -->
                         <details class="bg-slate-700/50 rounded-lg border border-slate-600 mb-3 group">
                             <summary class="p-4 font-semibold text-sky-400 cursor-pointer flex justify-between items-center hover:bg-slate-700/80 transition-colors rounded-lg">
                                 <span>2. ถามจำนวนชิ้น หรือ จำนวนส่วนทั้งหมด</span>
@@ -632,7 +560,6 @@
                                 </div>
                             </div>
                         </details>
-
                     </div>
                 </div>
             `
@@ -755,7 +682,7 @@
             container.innerHTML = `
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-600 mb-6 shadow-lg">
                     <h3 class="text-xl text-slate-300 mb-2 text-center">จงหา ห.ร.ม. ของ</h3>
-                    <div class="text-4xl font-bold text-white my-4 font-mono text-center tracking-widest bg-slate-900 py-8 rounded-lg shadow-inner">${nums.join(' และ ')}</div>
+                    <div class="text-4xl font-bold text-white my-4 text-center tracking-widest bg-slate-900 py-8 rounded-lg shadow-inner">${nums.join(' และ ')}</div>
                     <div class="mt-6 flex justify-center">
                         <button onclick="this.nextElementSibling.classList.remove('hidden'); this.style.display='none';" class="bg-emerald-600 hover:bg-emerald-500 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg flex items-center gap-2"><i class="ph-bold ph-eye"></i> ดูเฉลย</button>
                         <div class="hidden w-full mt-4 animate-fade-in-up">
@@ -776,9 +703,9 @@
             container.innerHTML = `
                 <div class="bg-slate-800 rounded-xl p-6 border border-slate-600 mb-6 shadow-lg">
                     <h3 class="text-xl text-slate-300 mb-2 text-center">จงหา ห.ร.ม. ของ (วิธียุคลิด)</h3>
-                    <div class="text-4xl font-bold text-white my-4 font-mono text-center tracking-widest bg-slate-900 py-8 rounded-lg shadow-inner">${b} และ ${a}</div>
+                    <div class="text-4xl font-bold text-white my-4 text-center tracking-widest bg-slate-900 py-8 rounded-lg shadow-inner">${b} และ ${a}</div>
                     <div class="mt-6 flex justify-center">
-                        <button onclick="this.nextElementSibling.classList.remove('hidden'); this.style.display='none';" class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg flex items-center gap-2"><i class="ph-bold ph-eye"></i> ดูเฉลยทีละบรรทัด</button>
+                        <button onclick="this.nextElementSibling.classList.remove('hidden'); this.style.display='none';" class="bg-purple-600 hover:bg-purple-500 text-white px-8 py-3 rounded-lg font-semibold transition-all shadow-lg flex items-center gap-2"><i class="ph-bold ph-eye"></i> ดูเฉลย</button>
                         <div class="hidden w-full mt-4 animate-fade-in-up">
                             ${generateEuclidHTML(a, b)}
                             <div class="text-center text-2xl text-purple-400 font-bold mb-4 bg-slate-900 border border-slate-600 p-4 rounded-lg">ห.ร.ม. คือ ${sol.gcf}</div>
@@ -788,7 +715,6 @@
             `;
         }
 
-        // Start App
         window.onload = () => { document.getElementById('default-btn').click(); }
     </script>
 </body>
