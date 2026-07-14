@@ -1,0 +1,1583 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>LCM Master — ค.ร.น. พร้อมแอนิเมชัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:'Mali',sans-serif}
+html,body{height:100%;overflow:hidden;background:#f5f7fb;color:#1a2233;font-size:15px}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#c3cce0;border-radius:10px}
+
+.navbar{background:#ffffff;border-bottom:2px solid #e2e8f5;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:20}
+.nav-logo{background:linear-gradient(135deg,#0d9488,#0891b2);color:#fff;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-title{font-weight:700;font-size:16px;color:#101827;line-height:1.3}
+.nav-sub{font-size:12px;color:#5c6b8a;display:none}
+@media(min-width:640px){.nav-sub{display:block}}
+.hamburger{margin-left:auto;background:#eef1fa;border:1px solid #dbe2f3;cursor:pointer;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#4a5578;flex-shrink:0}
+@media(min-width:768px){.hamburger{display:none}}
+
+.workspace{display:flex;height:calc(100vh - 57px);overflow:hidden;padding:10px;gap:10px}
+
+.sidebar{width:300px;min-width:300px;background:#ffffff;border-radius:12px;border:1px solid #e2e8f5;display:flex;flex-direction:column;overflow:hidden;transition:transform .3s ease;flex-shrink:0;box-shadow:0 1px 3px rgba(20,30,60,.06)}
+@media(min-width:1024px){.sidebar{width:340px;min-width:340px}}
+@media(max-width:767px){
+  .sidebar{position:fixed;top:0;left:0;width:100%!important;min-width:unset!important;height:100%;border-radius:0;z-index:100;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(20,30,50,.45);z-index:99}
+.overlay.open{display:block}
+.sidebar-header{padding:14px;border-bottom:1px solid #e2e8f5;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sidebar-header h2{font-size:15px;font-weight:700;color:#101827;display:flex;align-items:center;gap:8px}
+.close-btn{background:none;border:none;cursor:pointer;width:30px;height:30px;border-radius:6px;display:none;align-items:center;justify-content:center;color:#5c6b8a}
+@media(max-width:767px){.close-btn{display:flex}}
+.sidebar-body{padding:10px;overflow-y:auto;flex:1}
+.sec-label{font-size:10px;font-weight:700;color:#5c6b8a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;margin-top:4px;display:flex;align-items:center;gap:6px}
+.sec-group{margin-bottom:16px}
+.mod-btn{width:100%;text-align:left;background:#f4f6fb;border:1px solid #e2e8f5;border-radius:10px;padding:11px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:6px;transition:border-color .15s,background .15s}
+.mod-btn:active{background:#eaeef7}
+.mod-btn.act-teal{background:#e6fbf8;border-color:#0d9488}
+.mod-btn.act-orange{background:#fff3e6;border-color:#ea580c}
+.mod-btn.act-pink{background:#fdeaf3;border-color:#db2777}
+.mod-btn.act-purple{background:#f1ecff;border-color:#7c3aed}
+.mod-btn.act-cyan{background:#e0f7fa;border-color:#0891b2}
+.mod-icon{font-size:18px;flex-shrink:0;width:22px;text-align:center}
+.mod-title{font-size:13px;font-weight:700;color:#101827}
+.mod-sub{font-size:11px;color:#5c6b8a;margin-top:1px}
+.badge{display:inline-block;font-size:10px;font-weight:600;border-radius:20px;padding:1px 7px;margin-top:2px}
+.bdg-t{background:#ccf7ef;color:#0f766e}.bdg-o{background:#ffe4c7;color:#c2410c}.bdg-p{background:#fbcfe8;color:#be185d}.bdg-u{background:#ded4fc;color:#5b21b6}.bdg-c{background:#cffafe;color:#0e7490}
+
+.content-pane{flex:1;background:#ffffff;border-radius:12px;border:1px solid #e2e8f5;display:flex;flex-direction:column;overflow:hidden;min-width:0;box-shadow:0 1px 3px rgba(20,30,60,.06)}
+.pane-header{background:#f9fafd;border-bottom:1px solid #e2e8f5;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.pane-header span{font-size:13px;color:#5c6b8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dc{flex:1;overflow-y:auto;padding:16px;color:#1a2233}
+@media(min-width:640px){#dc{padding:20px}}
+
+.pbox{max-width:760px;margin:0 auto}
+.slabel{border-left:4px solid;padding:11px 16px;border-radius:0 9px 9px 0;margin-bottom:14px;font-size:15px;font-weight:700}
+.slabel.t{border-color:#0d9488;background:#e6fbf8;color:#0f766e}
+.slabel.o{border-color:#ea580c;background:#fff3e6;color:#c2410c}
+.slabel.p{border-color:#db2777;background:#fdeaf3;color:#be185d}
+.slabel.u{border-color:#7c3aed;background:#f1ecff;color:#5b21b6}
+.slabel.c{border-color:#0891b2;background:#e0f7fa;color:#0e7490}
+.ans-box{background:#f4f6fb;border:1px solid #c3cce0;border-radius:10px;padding:16px;text-align:center;margin-top:10px}
+.ans-box p{font-size:21px;font-weight:700;color:#101827;text-decoration:underline;text-decoration-color:#0d9488}
+.nav-btns{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.btn-p,.btn-n{border:none;border-radius:9px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Mali',sans-serif}
+.btn-p{background:#eef1fa;color:#2c3550;border:1px solid #dbe2f3}.btn-n{background:#0d9488;color:#fff}
+.btn-p:active{background:#dde3f2}.btn-n:active{background:#0f766e}
+.sel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+@media(min-width:480px){.sel-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:640px){.sel-grid{grid-template-columns:repeat(5,1fr)}}
+.sel-btn{padding:9px 4px;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Mali',sans-serif}
+.sel-btn:active{transform:scale(.95)}
+.sbt{background:#0d9488;color:#fff}.sbo{background:#ea580c;color:#fff}.sbp{background:#db2777;color:#fff}.sbu{background:#7c3aed;color:#fff}
+
+.math-box{background:#f9fafd;border:1px solid #dbe2f3;border-radius:10px;padding:16px;font-family:monospace;font-size:15px;overflow-x:auto;margin-bottom:10px;text-align:center;line-height:2.2;color:#1a2233}
+.sdstep{display:flex;align-items:flex-end;margin-bottom:3px;justify-content:center}
+.sdsor{width:38px;text-align:right;padding-right:10px;font-weight:700;color:#0369a1;font-family:monospace;font-size:16px}
+.sdnums{display:flex;gap:14px;border-left:2px solid #94a3b8;border-bottom:2px solid #94a3b8;padding-left:10px;padding-bottom:3px}
+.sdnum{width:40px;text-align:center;color:#1a2233;font-family:monospace;font-size:17px}
+.sdfin{display:flex;align-items:flex-end;margin-top:3px;justify-content:center}
+.sdfinsp{width:38px;padding-right:10px}
+.sdfinns{display:flex;gap:14px;padding-left:12px}
+.sdfinn{width:38px;text-align:center;border-bottom:3px double #94a3b8;padding-bottom:2px;color:#1a2233;font-family:monospace;font-size:16px}
+
+.ccard{background:#ffffff;border:1px solid #e2e8f5;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+.ccard h3{font-size:15px;font-weight:700;margin-bottom:10px;color:#101827;display:flex;align-items:center;gap:8px}
+.ccard p,.ccard li{font-size:14px;color:#38425c;line-height:1.9}
+.ccard ol,.ccard ul{padding-left:18px}
+.cpre{background:#0f172a;border-radius:8px;padding:11px;font-family:monospace;font-size:12px;color:#5eead4;margin-top:10px;line-height:1.9;border:1px solid #1f2937}
+
+.fi{animation:fi .35s ease forwards}
+@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== ANIMATION GLOBALS ===== */
+.anim-wrap{background:#f9fafd;border:1px solid #e2e8f5;border-radius:12px;padding:16px;margin-bottom:12px}
+.anim-title{font-size:14px;font-weight:700;color:#2c3550;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.slider-row label{font-size:14px;color:#38425c;font-weight:600;min-width:90px}
+.slider-row input[type=range]{flex:1;min-width:100px;accent-color:#0d9488;cursor:pointer}
+.slider-val{font-size:17px;font-weight:700;color:#0f766e;min-width:32px;text-align:center;background:#e6fbf8;border-radius:7px;padding:3px 10px;border:1px solid #99e6da}
+
+/* ===== SECTION 11: SHORT DIVISION ANIMATED ===== */
+.div-stage{background:#f9fafd;border:1px solid #dbe2f3;border-radius:14px;padding:20px;margin-bottom:12px;min-height:200px;position:relative}
+.div-col-wrap{display:flex;justify-content:center;gap:0;align-items:flex-start;min-height:180px}
+.div-col{display:flex;flex-direction:column;align-items:center;gap:0}
+/* prime column */
+.div-prime-col{display:flex;flex-direction:column;align-items:flex-end;padding-right:0;position:relative}
+.div-prime-cell{width:46px;height:46px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:18px;font-weight:700;color:#0369a1;opacity:0;transform:translateX(-12px);transition:opacity .4s,transform .4s;position:relative}
+.div-prime-cell.show{opacity:1;transform:translateX(0)}
+.div-prime-cell.glow{color:#0284c7;text-shadow:0 0 10px rgba(3,105,161,.35)}
+/* number columns */
+.div-num-col{display:flex;flex-direction:column;align-items:center;position:relative}
+.div-num-cell{width:52px;height:46px;display:flex;align-items:center;justify-content:center;font-family:monospace;font-size:18px;font-weight:700;border-radius:8px;transition:all .45s cubic-bezier(.25,1,.5,1);opacity:0;transform:translateY(-8px)}
+.div-num-cell.show{opacity:1;transform:translateY(0)}
+.div-num-cell.active{background:#ccf7ef;color:#0f766e;box-shadow:0 0 0 2px #0d9488}
+.div-num-cell.divided{background:#dbeafe;color:#1d4ed8;box-shadow:0 0 0 2px #3b82f6}
+.div-num-cell.skip{background:#eef1f6;color:#94a3b8}
+.div-num-cell.final{background:#ede9fe;color:#6d28d9;box-shadow:0 0 0 2px #7c3aed}
+.div-num-cell.final1{background:#fef9c3;color:#a16207;box-shadow:0 0 0 2px #ca8a04}
+/* borders */
+.div-vline{width:2px;background:#c3cce0;align-self:stretch;margin:0 2px}
+.div-hline{height:2px;background:#c3cce0;width:100%;margin-top:-2px}
+.div-result-row{display:flex;justify-content:center;gap:4px;margin-top:10px;opacity:0;transition:opacity .5s;flex-wrap:wrap}
+.div-result-row.show{opacity:1}
+.div-result-chip{background:#ede9fe;border:1px solid #7c3aed;border-radius:8px;padding:4px 12px;font-size:14px;font-weight:700;color:#5b21b6}
+.div-result-chip.red{background:#fee2e2;border-color:#dc2626;color:#b91c1c}
+.div-result-chip.eq{background:#ccf7ef;border-color:#0d9488;color:#0f766e;font-size:16px}
+
+/* trick callout */
+.trick-callout{border-radius:10px;padding:13px 16px;margin:10px 0;font-size:14px;display:none;border-left:4px solid}
+.trick-callout.show{display:block;animation:fi .3s ease}
+.trick-callout.blue{background:#eff6ff;border-color:#3b82f6;color:#1e40af}
+.trick-callout.yellow{background:#fffbeb;border-color:#eab308;color:#854d0e}
+.trick-callout.green{background:#f0fdf4;border-color:#22c55e;color:#166534}
+.trick-callout.red{background:#fef2f2;border-color:#ef4444;color:#991b1b}
+.trick-tag{display:inline-block;background:#7c3aed;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px;margin-right:6px}
+.tip-tag{display:inline-block;background:#0369a1;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px;margin-right:6px}
+.warn-tag{display:inline-block;background:#b45309;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px;margin-right:6px}
+
+.ctrl-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.ctrl-bar button{border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Mali',sans-serif;display:flex;align-items:center;gap:5px}
+.btn-next{background:#0d9488;color:#fff}.btn-next:hover{background:#0f766e}
+.btn-reset{background:#eef1fa;color:#2c3550;border:1px solid #dbe2f3}.btn-reset:hover{background:#dde3f2}
+.btn-auto{background:#4338ca;color:#fff}.btn-auto:hover{background:#3730a3}
+.step-info{font-size:13px;color:#5c6b8a;margin-left:4px}
+
+.lcm-reveal{background:linear-gradient(135deg,#e6fbf8,#eef2ff);border:2px solid #0d9488;border-radius:14px;padding:18px;text-align:center;margin-top:14px;opacity:0;transform:scale(.92);transition:opacity .5s,transform .5s}
+.lcm-reveal.show{opacity:1;transform:scale(1)}
+.lcm-formula{font-size:13px;color:#0f766e;margin-bottom:6px}
+.lcm-number{font-size:32px;font-weight:700;color:#101827;letter-spacing:2px}
+.lcm-eq{font-size:14px;color:#5c6b8a;margin-top:4px}
+
+/* ===== SECTION 11: MULTIPLES CIRCLE / VENN ===== */
+.multiples-visual{overflow-x:auto}
+.mult-row{display:flex;gap:5px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+.mult-label{font-size:14px;font-weight:700;min-width:60px;text-align:right;padding-right:6px;flex-shrink:0}
+.mult-chip{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:all .35s cubic-bezier(.25,1,.5,1);flex-shrink:0;border:2px solid transparent;cursor:default}
+.mult-chip.plain{background:#eef1f6;color:#94a3b8}
+.mult-chip.hit{transform:scale(1.18)}
+.mult-chip.lcm-hit{animation:lcmpulse 1.2s ease infinite}
+@keyframes lcmpulse{0%,100%{box-shadow:0 0 0 0 rgba(13,148,136,.35)}60%{box-shadow:0 0 0 10px rgba(13,148,136,0)}}
+.mult-divider{height:2px;background:#e2e8f5;margin:10px 0}
+
+/* ===== SECTION 12: REMAINDER VISUAL ===== */
+.rem-anim-wrap{background:#f9fafd;border:1px solid #dbe2f3;border-radius:12px;padding:16px;margin-bottom:12px}
+.rem-number-line{overflow-x:auto;padding-bottom:6px;margin:12px 0}
+.rem-svg-wrap svg{display:block;min-width:480px}
+.rem-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+@media(max-width:480px){.rem-cards{grid-template-columns:1fr}}
+.rem-card{background:#ffffff;border:1px solid #dbe2f3;border-radius:10px;padding:12px;text-align:center}
+.rem-card-title{font-size:11px;color:#5c6b8a;margin-bottom:6px}
+.rem-card-val{font-size:22px;font-weight:700}
+.rem-story{background:#ffffff;border-left:4px solid #ea580c;border-radius:0 10px 10px 0;padding:13px;font-size:14px;color:#38425c;margin:10px 0;line-height:1.9;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+
+/* ===== SECTION 13: CLOCK + TIMELINE ===== */
+.clock-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+@media(max-width:500px){.clock-grid{grid-template-columns:1fr}}
+.clock-box{background:#ffffff;border:1px solid #e2e8f5;border-radius:12px;padding:14px;text-align:center}
+.clock-lbl{font-size:13px;font-weight:700;margin-bottom:8px;color:#38425c}
+.clock-svg{display:block;margin:0 auto}
+.tl-container{margin-top:8px}
+.tl-row{display:flex;align-items:center;margin-bottom:6px}
+.tl-label{width:58px;flex-shrink:0;font-size:13px;color:#38425c;font-weight:700;text-align:right;padding-right:8px}
+.tl-cells{display:flex;gap:3px;overflow-x:auto;padding-bottom:3px}
+.tl-cell{width:34px;height:34px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .35s cubic-bezier(.25,1,.5,1);opacity:.3;border:2px solid transparent}
+.tl-cell.lit{opacity:1;transform:scale(1.1)}
+.tl-cell.both{opacity:1;transform:scale(1.2);animation:bothpulse 1s ease infinite}
+@keyframes bothpulse{0%,100%{box-shadow:0 0 0 0 rgba(13,148,136,.4)}50%{box-shadow:0 0 0 10px rgba(13,148,136,0)}}
+.meet-banner{border-radius:12px;padding:14px 18px;text-align:center;font-size:15px;font-weight:700;margin-top:14px;opacity:0;transition:opacity .6s;border:2px solid}
+.meet-banner.show{opacity:1}
+.meet-banner.teal{background:linear-gradient(135deg,#e6fbf8,#eef2ff);border-color:#0d9488;color:#0f766e}
+.meet-banner.pink{background:linear-gradient(135deg,#fdeaf3,#eef2ff);border-color:#db2777;color:#be185d}
+
+/* ===== SECTION 14/15: NEW ===== */
+.diff-tag{display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:2px 9px;margin-left:6px}
+.diff-easy{background:#dcfce7;color:#166534}
+.diff-med{background:#fef9c3;color:#a16207}
+.diff-hard{background:#fee2e2;color:#b91c1c}
+.diff-elite{background:#ede9fe;color:#5b21b6}
+.sol-step{background:#f9fafd;border:1px solid #dbe2f3;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.sol-step .num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#0d9488;color:#fff;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px}
+.limit-card{background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.limit-card .tag{background:#c2410c;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px;margin-right:6px}
+.trickfast{background:#f1ecff;border:1px solid #c4b5fd;border-radius:10px;padding:12px 14px;margin-bottom:8px}
+.trickfast .tag{background:#6d28d9;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px;margin-right:6px}
+
+/* ===== DIFFICULTY FILTER + STEP-REVEAL SOLUTION ENGINE ===== */
+.diff-filter-btn{opacity:.75}
+.diff-filter-btn.active{background:#0d9488!important;color:#fff!important;opacity:1;border-color:#0d9488!important}
+.sel-btn-diff{display:flex;flex-direction:column;gap:3px;align-items:center;justify-content:center;padding:11px 4px;min-height:56px}
+.sol-answer-box{display:none}
+#sol-steps .sol-step{opacity:0;animation:fi .35s ease forwards}
+
+/* ===== SECTION 16: LCM x GCD RELATIONSHIP ===== */
+.rel-eq-row{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;margin:14px 0}
+.rel-chip{border-radius:10px;padding:10px 18px;font-size:17px;font-weight:700;text-align:center;min-width:90px}
+.rel-chip .lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;opacity:.75;margin-bottom:2px}
+.rel-chip.gcd{background:#dbeafe;color:#1d4ed8;border:2px solid #3b82f6}
+.rel-chip.lcm{background:#e6fbf8;color:#0f766e;border:2px solid #0d9488}
+.rel-chip.prod{background:#ede9fe;color:#5b21b6;border:2px solid #7c3aed}
+.rel-chip.op{background:none;border:none;color:#94a3b8;font-size:22px;min-width:auto;padding:0}
+.rel-check{text-align:center;font-size:15px;font-weight:700;padding:10px;border-radius:10px;margin-top:6px}
+.rel-check.ok{background:#dcfce7;color:#166534}
+
+/* scrollbar for mobile */
+.tl-cells::-webkit-scrollbar{height:4px}
+.tl-cells::-webkit-scrollbar-thumb{background:#c3cce0;border-radius:4px}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo"><i class="ph-bold ph-chalkboard-teacher" style="font-size:18px"></i></div>
+  <div>
+    <div class="nav-title">Teacher Workspace — LCM Master</div>
+    <div class="nav-sub">ผลคูณร่วมที่น้อยที่สุด (ค.ร.น.) · ครบทุกข้อ · พร้อมแอนิเมชัน</div>
+  </div>
+  <button class="hamburger" onclick="toggleSidebar()"><i class="ph-bold ph-list" style="font-size:20px"></i></button>
+</nav>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="workspace">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2><i class="ph-fill ph-list-dashes" style="color:#0d9488;font-size:18px"></i> หัวข้อการสอน</h2>
+      <button class="close-btn" onclick="toggleSidebar()"><i class="ph-bold ph-x" style="font-size:17px"></i></button>
+    </div>
+    <div class="sidebar-body">
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-intersect" style="color:#0d9488"></i> ส่วนที่ 11 — หา ค.ร.น.</div>
+        <button class="mod-btn act-teal" id="default-btn" onclick="loadConcept('sec11',this)">
+          <i class="ph-duotone ph-presentation-chart mod-icon" style="color:#0d9488"></i>
+          <div><div class="mod-title" style="color:#0f766e">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">ตัวคูณร่วม · หารสั้น Interactive</div></div>
+        </button>
+        <button class="mod-btn" onclick="renderSel('sec11_factor',this,'teal')">
+          <i class="ph-duotone ph-tree-structure mod-icon" style="color:#0d9488"></i>
+          <div><div class="mod-title">แบบฝึกหัด (แยกตัวประกอบ)</div><span class="badge bdg-t">15 ข้อ</span></div>
+        </button>
+        <button class="mod-btn" onclick="renderSel('sec11_div',this,'teal')">
+          <i class="ph-duotone ph-divide mod-icon" style="color:#0d9488"></i>
+          <div><div class="mod-title">แบบฝึกหัด (ตั้งหารสั้น)</div><span class="badge bdg-t">15 ข้อ</span></div>
+        </button>
+      </div>
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-plus-minus" style="color:#ea580c"></i> ส่วนที่ 12 — ค.ร.น. แบบมีเศษ</div>
+        <button class="mod-btn" onclick="loadConcept('sec12',this)">
+          <i class="ph-duotone ph-book-open mod-icon" style="color:#ea580c"></i>
+          <div><div class="mod-title">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">Visual เศษบน Number Line</div></div>
+        </button>
+        <button class="mod-btn" onclick="renderSel('sec12',this,'orange')">
+          <i class="ph-duotone ph-notebook mod-icon" style="color:#ea580c"></i>
+          <div><div class="mod-title">แบบฝึกหัด 1.7</div><span class="badge bdg-o">8 ข้อ</span></div>
+        </button>
+      </div>
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-clock" style="color:#db2777"></i> ส่วนที่ 13 — โจทย์ปัญหา</div>
+        <button class="mod-btn" onclick="loadConcept('sec13',this)">
+          <i class="ph-duotone ph-clock mod-icon" style="color:#db2777"></i>
+          <div><div class="mod-title">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">นาฬิกา Timeline พร้อมกัน</div></div>
+        </button>
+        <button class="mod-btn" onclick="renderSel('sec13',this,'pink')">
+          <i class="ph-duotone ph-users-three mod-icon" style="color:#db2777"></i>
+          <div><div class="mod-title">แบบฝึกหัด 1.8 (ง่าย/กลาง/ยาก)</div><span class="badge bdg-p">18 ข้อ</span></div>
+        </button>
+      </div>
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-medal" style="color:#7c3aed"></i> ส่วนที่ 14 — ข้อสอบยากระดับประเทศ</div>
+        <button class="mod-btn" onclick="renderSel('sec14',this,'purple')">
+          <i class="ph-duotone ph-exam mod-icon" style="color:#7c3aed"></i>
+          <div><div class="mod-title">โจทย์แข่งขัน + เฉลยละเอียด</div><span class="badge bdg-u">10 ข้อ</span></div>
+        </button>
+      </div>
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-lightning" style="color:#7c3aed"></i> ส่วนที่ 15 — ทริคคิดเร็ว & ข้อจำกัด</div>
+        <button class="mod-btn" onclick="loadConcept('sec15',this)">
+          <i class="ph-duotone ph-brain mod-icon" style="color:#7c3aed"></i>
+          <div><div class="mod-title">🎬 คลังทริค + ข้อควรระวัง</div><div class="mod-sub">เทคนิคลัด · จุดที่พลาดบ่อย</div></div>
+        </button>
+      </div>
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-equals" style="color:#0891b2"></i> ส่วนที่ 16 — ความสัมพันธ์ ค.ร.น. × ห.ร.ม.</div>
+        <button class="mod-btn" onclick="loadConcept('sec16',this)">
+          <i class="ph-duotone ph-scales mod-icon" style="color:#0891b2"></i>
+          <div><div class="mod-title">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">LCM × GCD = a × b</div></div>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="content-pane">
+    <div class="pane-header">
+      <i class="ph ph-chalkboard" style="color:#5c6b8a;font-size:15px"></i>
+      <span id="wtitle">กระดานสอน</span>
+    </div>
+    <div id="dc"></div>
+  </section>
+</div>
+
+<script>
+// ============================================================
+// CORE UTILS
+// ============================================================
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function setTitle(t){document.getElementById('wtitle').textContent=t}
+function setDC(html){document.getElementById('dc').innerHTML=`<div class="pbox fi">${html}</div>`}
+function gcd(a,b){return b?gcd(b,a%b):a}
+function lcm2(a,b){return a/gcd(a,b)*b}
+function lcmArr(arr){return arr.reduce(lcm2,1)}
+function primeFactors(n){let f=[],d=2;while(n>=2){if(n%d===0){f.push(d);n/=d}else d++}return f}
+const PRIMES=[2,3,5,7,11,13,17,19,23];
+
+// Sidebar active state
+function setActive(btn){
+  document.querySelectorAll('.mod-btn').forEach(b=>b.classList.remove('act-teal','act-orange','act-pink','act-purple','act-cyan'));
+  const colorClass={orange:'act-orange',pink:'act-pink',purple:'act-purple',cyan:'act-cyan'}[btn._color]||'act-teal';
+  btn.classList.add(colorClass);
+}
+
+// ============================================================
+// SHORT DIVISION ENGINE
+// ============================================================
+function calcDiv(nums){
+  let cur=[...nums],steps=[],divs=[];
+  while(true){
+    let found=false;
+    for(let p of PRIMES){
+      let cnt=cur.filter(n=>n>1&&n%p===0).length;
+      if(cnt>=2||(cur.length===1&&cnt===1)){
+        divs.push(p);
+        steps.push({d:p,before:[...cur]});
+        cur=cur.map(n=>n%p===0?Math.floor(n/p):n);
+        found=true;break;
+      }
+    }
+    if(!found)break;
+  }
+  let remaining=cur.filter(n=>n>1);
+  let allFactors=[...divs,...remaining];
+  return{steps,final:cur,divs,remaining,allFactors,lcm:allFactors.reduce((a,b)=>a*b,1)||1};
+}
+
+// Static short div (for exercise answers)
+function sdHtml(nums){
+  let r=calcDiv(nums);
+  let h='<div class="math-box">';
+  r.steps.forEach(s=>{
+    let ns=s.before.map(n=>`<div class="sdnum">${n}</div>`).join('');
+    h+=`<div class="sdstep"><div class="sdsor">${s.d}</div><div class="sdnums">${ns}</div></div>`;
+  });
+  let fins=r.final.map(n=>`<div class="sdfinn">${n}</div>`).join('');
+  h+=`<div class="sdfin"><div class="sdfinsp"></div><div class="sdfinns">${fins}</div></div>`;
+  h+='</div>';
+  return{html:h,lcm:r.lcm,allFactors:r.allFactors};
+}
+
+function factHtml(nums){
+  let h='<div class="math-box">';
+  nums.forEach(n=>{
+    let f=primeFactors(n);
+    h+=`<div style="margin-bottom:4px"><span style="color:#5c6b8a;display:inline-block;width:36px;text-align:right">${n}</span> <span style="color:#94a3b8"> = </span> <span style="color:#1a2233">${f.join(' × ')}</span></div>`;
+  });
+  let lc=lcmArr(nums);
+  h+=`<div style="margin-top:10px;padding-top:8px;border-top:1px solid #e2e8f5;color:#0f766e;font-weight:700">ค.ร.น. = ${lc}</div>`;
+  h+='</div>';
+  return{html:h,lcm:lc};
+}
+
+// ============================================================
+// PROBLEM DB
+// ============================================================
+const DB={
+  sec11_factor:[
+    ['ข้อ 1','หา ค.ร.น. ของ 6 และ 10',[6,10]],
+    ['ข้อ 2','หา ค.ร.น. ของ 8 และ 12',[8,12]],
+    ['ข้อ 3','หา ค.ร.น. ของ 4, 6 และ 9',[4,6,9]],
+    ['ข้อ 4','หา ค.ร.น. ของ 3, 5 และ 7',[3,5,7]],
+    ['ข้อ 5','หา ค.ร.น. ของ 6, 10 และ 15',[6,10,15]],
+    ['ข้อ 6','หา ค.ร.น. ของ 12 และ 18',[12,18]],
+    ['ข้อ 7','หา ค.ร.น. ของ 14 และ 21',[14,21]],
+    ['ข้อ 8','หา ค.ร.น. ของ 8, 12 และ 16',[8,12,16]],
+    ['ข้อ 9','หา ค.ร.น. ของ 9 และ 15',[9,15]],
+    ['ข้อ 10','หา ค.ร.น. ของ 4, 8 และ 12',[4,8,12]],
+    ['ข้อ 11','หา ค.ร.น. ของ 6, 9 และ 12',[6,9,12]],
+    ['ข้อ 12','หา ค.ร.น. ของ 10 และ 25',[10,25]],
+    ['ข้อ 13','หา ค.ร.น. ของ 15 และ 20',[15,20]],
+    ['ข้อ 14','หา ค.ร.น. ของ 12, 15 และ 20',[12,15,20]],
+    ['ข้อ 15','หา ค.ร.น. ของ 18 และ 24',[18,24]],
+  ],
+  sec11_div:[
+    ['ข้อ 1','หา ค.ร.น. ของ 6 และ 10',[6,10]],
+    ['ข้อ 2','หา ค.ร.น. ของ 8 และ 12',[8,12]],
+    ['ข้อ 3','หา ค.ร.น. ของ 4, 6 และ 9',[4,6,9]],
+    ['ข้อ 4','หา ค.ร.น. ของ 3, 5 และ 7',[3,5,7]],
+    ['ข้อ 5','หา ค.ร.น. ของ 6, 10 และ 15',[6,10,15]],
+    ['ข้อ 6','หา ค.ร.น. ของ 12 และ 18',[12,18]],
+    ['ข้อ 7','หา ค.ร.น. ของ 14 และ 21',[14,21]],
+    ['ข้อ 8','หา ค.ร.น. ของ 8, 12 และ 16',[8,12,16]],
+    ['ข้อ 9','หา ค.ร.น. ของ 9 และ 15',[9,15]],
+    ['ข้อ 10','หา ค.ร.น. ของ 4, 8 และ 12',[4,8,12]],
+    ['ข้อ 11','หา ค.ร.น. ของ 6, 9 และ 12',[6,9,12]],
+    ['ข้อ 12','หา ค.ร.น. ของ 10 และ 25',[10,25]],
+    ['ข้อ 13','หา ค.ร.น. ของ 15 และ 20',[15,20]],
+    ['ข้อ 14','หา ค.ร.น. ของ 12, 15 และ 20',[12,15,20]],
+    ['ข้อ 15','หา ค.ร.น. ของ 18 และ 24',[18,24]],
+  ],
+  sec12:[
+    ['ข้อ 1','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 4 และ 6 แล้วเหลือเศษ 2',[4,6],2],
+    ['ข้อ 2','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 3 และ 5 แล้วเหลือเศษ 1',[3,5],1],
+    ['ข้อ 3','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 6 และ 9 แล้วเหลือเศษ 3',[6,9],3],
+    ['ข้อ 4','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 4 และ 10 แล้วเหลือเศษ 2',[4,10],2],
+    ['ข้อ 5','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 5 และ 8 แล้วเหลือเศษ 3',[5,8],3],
+    ['ข้อ 6','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 6, 8 และ 12 แล้วเหลือเศษ 4',[6,8,12],4],
+    ['ข้อ 7','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 9 และ 12 แล้วเหลือเศษ 5',[9,12],5],
+    ['ข้อ 8','หาจำนวนนับที่น้อยที่สุดที่หารด้วย 4, 6 และ 10 แล้วเหลือเศษ 2',[4,6,10],2],
+  ],
+  sec13:[
+    {title:'ข้อ 1',diff:'easy',q:'นาฬิกาสองเรือนตีกระดิ่งพร้อมกัน เรือนแรกตีทุก 4 นาที เรือนที่สองตีทุก 6 นาที จะตีพร้อมกันอีกครั้งในอีกกี่นาที?',nums:[4,6],unit:'นาที'},
+    {title:'ข้อ 2',diff:'easy',q:'ระฆังวัดสองใบตีพร้อมกัน ใบแรกตีทุก 5 วินาที ใบที่สองตีทุก 10 วินาที จะตีพร้อมกันอีกครั้งในอีกกี่วินาที?',nums:[5,10],unit:'วินาที'},
+    {title:'ข้อ 3',diff:'easy',q:'ไฟกระพริบต้นคริสต์มาสสองสาย สายแรกกระพริบทุก 3 วินาที สายที่สองทุก 9 วินาที จะกระพริบพร้อมกันอีกครั้งในอีกกี่วินาที?',nums:[3,9],unit:'วินาที'},
+    {title:'ข้อ 4',diff:'easy',q:'กลองกับฉาบตีจังหวะพร้อมกัน กลองตีทุก 6 จังหวะ ฉาบตีทุก 8 จังหวะ จะตีพร้อมกันอีกครั้งในอีกกี่จังหวะ?',nums:[6,8],unit:'จังหวะ'},
+    {title:'ข้อ 5',diff:'easy',q:'นกสองตัวร้องพร้อมกัน ตัวแรกร้องทุก 4 วินาที ตัวที่สองร้องทุก 7 วินาที จะร้องพร้อมกันอีกครั้งในอีกกี่วินาที?',nums:[4,7],unit:'วินาที'},
+    {title:'ข้อ 6',diff:'easy',q:'รถมอเตอร์ไซค์และรถยนต์ผ่านไฟสัญญาณพร้อมกัน มอเตอร์ไซค์ผ่านทุก 2 นาที รถยนต์ผ่านทุก 5 นาที จะผ่านพร้อมกันอีกครั้งในอีกกี่นาที?',nums:[2,5],unit:'นาที'},
+    {title:'ข้อ 7',diff:'med',q:'รถไฟสองขบวนออกจากสถานีพร้อมกัน ขบวนแรกออกทุก 12 นาที ขบวนที่สองออกทุก 18 นาที จะออกพร้อมกันอีกครั้งในอีกกี่นาที?',nums:[12,18],unit:'นาที'},
+    {title:'ข้อ 8',diff:'med',q:'ไฟสัญญาณสองดวง ดวงแรกกระพริบทุก 8 วินาที ดวงที่สองทุก 12 วินาที จะกระพริบพร้อมกันในอีกกี่วินาที?',nums:[8,12],unit:'วินาที'},
+    {title:'ข้อ 9',diff:'med',q:'เครื่องพิมพ์สองเครื่องพิมพ์งานเสร็จเป็นรอบ เครื่องแรกทุก 9 นาที เครื่องที่สองทุก 15 นาที จะพิมพ์เสร็จพร้อมกันอีกครั้งในอีกกี่นาที?',nums:[9,15],unit:'นาที'},
+    {title:'ข้อ 10',diff:'med',q:'คนสามคนวิ่งรอบสนาม คนแรกรอบละ 4 นาที คนที่สองรอบละ 6 นาที คนที่สามรอบละ 10 นาที จะผ่านจุดเริ่มต้นพร้อมกันในอีกกี่นาที?',nums:[4,6,10],unit:'นาที'},
+    {title:'ข้อ 11',diff:'med',q:'เรือข้ามฟากสองลำออกจากท่าพร้อมกัน ลำแรกออกทุก 10 นาที ลำที่สองออกทุก 14 นาที จะออกพร้อมกันอีกครั้งในอีกกี่นาที?',nums:[10,14],unit:'นาที'},
+    {title:'ข้อ 12',diff:'med',q:'สปริงเกอร์รดน้ำสองตัวทำงานพร้อมกัน ตัวแรกทำงานทุก 12 นาที ตัวที่สองทุก 20 นาที จะทำงานพร้อมกันอีกครั้งในอีกกี่นาที?',nums:[12,20],unit:'นาที'},
+    {title:'ข้อ 13',diff:'hard',q:'รถบัสสามคันออกจากสถานีเดียวกันพร้อมกันตอน 07:00 น. คันที่ 1 ออกทุก 10 นาที คันที่ 2 ออกทุก 15 นาที คันที่ 3 ออกทุก 25 นาที ทั้งสามคันจะออกพร้อมกันอีกครั้งเวลาใด?',nums:[10,15,25],unit:'นาที',
+      extra:['ค.ร.น.(10,15,25) = 150 นาที = 2 ชั่วโมง 30 นาที','เวลาเริ่มต้น 07:00 น. + 2 ชั่วโมง 30 นาที = 09:30 น.'],
+      answer:'09:30 น.'},
+    {title:'ข้อ 14',diff:'hard',q:'คนงานสามกะสลับหมุนเวียนเข้าเวรพร้อมกันเมื่อเวลา 06:00 น. กะที่ 1 ทุก 8 ชั่วโมง กะที่ 2 ทุก 12 ชั่วโมง กะที่ 3 ทุก 16 ชั่วโมง ทั้งสามกะจะเข้าเวรพร้อมกันอีกครั้งเวลาใด (ตอบเป็นวันและเวลา)',nums:[8,12,16],unit:'ชั่วโมง',
+      extra:['ค.ร.น.(8,12,16) = 48 ชั่วโมง = 2 วัน','เวลาเริ่มต้น 06:00 น. + 48 ชั่วโมง = 06:00 น. ของอีก 2 วันถัดไป'],
+      answer:'06:00 น. (อีก 2 วันถัดไป)'},
+    {title:'ข้อ 15',diff:'hard',q:'ไฟจราจรสามดวงเปลี่ยนเป็นสีแดงพร้อมกันตอน 08:15 น. ดวงที่ 1 ทุก 9 วินาที ดวงที่ 2 ทุก 12 วินาที ดวงที่ 3 ทุก 15 วินาที ทั้งสามดวงจะเปลี่ยนเป็นสีแดงพร้อมกันอีกครั้งเวลาใด?',nums:[9,12,15],unit:'วินาที',
+      extra:['ค.ร.น.(9,12,15) = 180 วินาที = 3 นาที','เวลาเริ่มต้น 08:15 น. + 3 นาที = 08:18 น.'],
+      answer:'08:18 น.'},
+    {title:'ข้อ 16',diff:'hard',q:'รถไฟใต้ดินสามสายออกจากสถานีร่วมพร้อมกันตอน 06:50 น. สายที่ 1 ทุก 14 นาที สายที่ 2 ทุก 21 นาที สายที่ 3 ทุก 28 นาที ทั้งสามสายจะออกพร้อมกันอีกครั้งเวลาใด?',nums:[14,21,28],unit:'นาที',
+      extra:['ค.ร.น.(14,21,28) = 84 นาที = 1 ชั่วโมง 24 นาที','เวลาเริ่มต้น 06:50 น. + 1 ชั่วโมง 24 นาที = 08:14 น.'],
+      answer:'08:14 น.'},
+    {title:'ข้อ 17',diff:'hard',q:'นาฬิกาสองเรือนตีกระดิ่งพร้อมกันตอนเริ่มต้น เรือนแรกตีทุก 18 นาที เรือนที่สองตีทุก 24 นาที ในช่วง 3 ชั่วโมงแรก (180 นาที) จะตีพร้อมกันทั้งหมดกี่ครั้ง (นับครั้งเริ่มต้นด้วย)',nums:[18,24],unit:'นาที',
+      extra:['ค.ร.น.(18,24) = 72 นาที → ตีพร้อมกันทุก 72 นาที','ครั้งที่ตีพร้อมกันในช่วง 180 นาที คือที่ 0, 72, 144 นาที (216 เกิน 180 แล้ว)','นับรวมครั้งเริ่มต้น (0 นาที) → ทั้งหมด 3 ครั้ง'],
+      answer:'3 ครั้ง'},
+    {title:'ข้อ 18',diff:'hard',q:'ปลาสามชนิดโผล่ขึ้นเหนือน้ำพร้อมกันตอน 9:00 น. ชนิดแรกโผล่ทุก 6 นาที ชนิดที่สองทุก 10 นาที ชนิดที่สามทุก 15 นาที จะโผล่พร้อมกันครั้งถัดไปเวลาใด',nums:[6,10,15],unit:'นาที',
+      extra:['ค.ร.น.(6,10,15) = 30 นาที','9:00 น. + 30 นาที = 9:30 น.'],
+      answer:'09:30 น.'},
+  ],
+  sec14:[
+    {
+      title:'ข้อ 1', diff:'hard',
+      q:'จงหา ค.ร.น. ของ 24, 36 และ 90',
+      nums:[24,36,90],
+      steps:[
+        'แยกตัวประกอบเฉพาะ: 24 = 2³×3, 36 = 2²×3², 90 = 2×3²×5',
+        'เลือกเลขชี้กำลังสูงสุดของแต่ละจำนวนเฉพาะ: 2³, 3², 5¹',
+        'ค.ร.น. = 2³ × 3² × 5 = 8 × 9 × 5 = 360'
+      ],
+      ans:'360'
+    },
+    {
+      title:'ข้อ 2', diff:'hard',
+      q:'ค.ร.น. ของ 18 และ 24 มีค่าเท่าใด และ ห.ร.ม. ของทั้งสองจำนวนนี้เท่ากับเท่าใด (ใช้ตรวจคำตอบด้วยสูตร LCM×GCD = a×b)',
+      nums:[18,24],
+      steps:[
+        '18 = 2×3², 24 = 2³×3',
+        'ค.ร.น. = 2³×3² = 8×9 = 72',
+        'ห.ร.ม. = 2¹×3¹ = 6',
+        'ตรวจสอบ: LCM×GCD = 72×6 = 432 และ a×b = 18×24 = 432 ✓ ตรงกัน'
+      ],
+      ans:'ค.ร.น. = 72, ห.ร.ม. = 6'
+    },
+    {
+      title:'ข้อ 3', diff:'elite',
+      q:'มีเชือก 3 เส้น ยาว 84, 126 และ 210 เซนติเมตร ต้องการตัดเป็นท่อนสั้นๆ ยาวเท่ากันโดยไม่เหลือเศษ และยาวที่สุดเท่าที่จะเป็นไปได้ จะได้เชือกยาวท่อนละกี่เซนติเมตร และตัดได้ทั้งหมดกี่ท่อน (โจทย์นี้คือ ห.ร.ม. ไม่ใช่ ค.ร.น. — ใช้ฝึกแยกแยะ)',
+      nums:[84,126,210],
+      steps:[
+        'สังเกตคำว่า "ยาวที่สุด" + "ตัดแบ่ง" → โจทย์นี้ต้องใช้ ห.ร.ม. ไม่ใช่ ค.ร.น. (จุดที่ข้อสอบชอบหลอก!)',
+        '84 = 2²×3×7, 126 = 2×3²×7, 210 = 2×3×5×7',
+        'ห.ร.ม. = 2×3×7 = 42',
+        'ท่อนละ 42 ซม. → จำนวนท่อน = (84+126+210)/42 = 420/42 = 10 ท่อน'
+      ],
+      ans:'ท่อนละ 42 ซม. รวม 10 ท่อน'
+    },
+    {
+      title:'ข้อ 4', diff:'elite',
+      q:'รถบัส 3 คันออกจากสถานีเดียวกัน คันที่ 1 ออกทุก 15 นาที คันที่ 2 ออกทุก 20 นาที คันที่ 3 ออกทุก 25 นาที ถ้าทั้งสามคันออกพร้อมกันตอน 06:00 น. ครั้งต่อไปที่ออกพร้อมกันคือเวลาใด',
+      nums:[15,20,25],
+      steps:[
+        '15 = 3×5, 20 = 2²×5, 25 = 5²',
+        'ค.ร.น. = 2²×3×5² = 4×3×25 = 300 นาที',
+        '300 นาที = 5 ชั่วโมง',
+        '06:00 + 5:00 = 11:00 น.'
+      ],
+      ans:'11:00 น.'
+    },
+    {
+      title:'ข้อ 5', diff:'elite',
+      q:'จำนวนนับที่น้อยที่สุดที่หารด้วย 6, 8 และ 15 ลงตัวทุกจำนวน แล้วบวกด้วย 7 จะได้ผลลัพธ์เท่าใด',
+      nums:[6,8,15],
+      steps:[
+        '6 = 2×3, 8 = 2³, 15 = 3×5',
+        'ค.ร.น. = 2³×3×5 = 120',
+        '120 + 7 = 127'
+      ],
+      ans:'127'
+    },
+    {
+      title:'ข้อ 6', diff:'hard',
+      q:'จำนวนนับที่น้อยที่สุดที่หารด้วย 8, 12 และ 15 แล้วเหลือเศษ 5 ทุกตัว คือจำนวนใด',
+      nums:[8,12,15],
+      remainder:5,
+      steps:[
+        '8 = 2³, 12 = 2²×3, 15 = 3×5',
+        'ค.ร.น. = 2³×3×5 = 120',
+        'คำตอบ = ค.ร.น. + เศษ = 120 + 5 = 125',
+        'ตรวจสอบ: 125÷8 เหลือ 5, 125÷12 เหลือ 5, 125÷15 เหลือ 5 ✓'
+      ],
+      ans:'125'
+    },
+    {
+      title:'ข้อ 7', diff:'elite',
+      q:'เด็กชายสามคนอ่านหนังสือวนซ้ำเป็นรอบ คนแรกอ่านจบทุก 9 วัน คนที่สองทุก 12 วัน คนที่สามทุก 18 วัน ถ้าวันที่ 1 มกราคม ทั้งสามคนอ่านจบพร้อมกัน ในปีนั้น (365 วัน) ทั้งสามคนจะอ่านจบพร้อมกันอีกกี่ครั้ง (นับครั้งแรกที่ 1 ม.ค. ด้วย)',
+      nums:[9,12,18],
+      steps:[
+        '9 = 3², 12 = 2²×3, 18 = 2×3²',
+        'ค.ร.น. = 2²×3² = 36 วัน',
+        'ครั้งที่อ่านจบพร้อมกัน: วันที่ 1, 37, 73, ... (ทุกๆ 36 วัน)',
+        'จำนวนครั้งใน 365 วัน = floor(365/36)+1 = 10+1 = 11 ครั้ง (365/36 ≈ 10.13 ดังนั้นนับ 1 ถึง 361 คือ 11 ครั้ง)'
+      ],
+      ans:'11 ครั้ง'
+    },
+    {
+      title:'ข้อ 8', diff:'hard',
+      q:'ถังน้ำสองใบมีวาล์วเปิดปล่อยน้ำเป็นจังหวะ ใบที่ 1 ปล่อยทุก 45 วินาที ใบที่ 2 ปล่อยทุก 75 วินาที ถ้าเริ่มปล่อยพร้อมกัน ในเวลา 20 นาที จะปล่อยพร้อมกันทั้งหมดกี่ครั้ง (นับครั้งเริ่มต้นด้วย)',
+      nums:[45,75],
+      steps:[
+        '45 = 3²×5, 75 = 3×5²',
+        'ค.ร.น. = 3²×5² = 225 วินาที = 3 นาที 45 วินาที',
+        '20 นาที = 1200 วินาที',
+        'จำนวนครั้ง = floor(1200/225)+1 = 5+1 = 6 ครั้ง'
+      ],
+      ans:'6 ครั้ง'
+    },
+    {
+      title:'ข้อ 9', diff:'elite',
+      q:'a และ b เป็นจำนวนนับ ถ้า ห.ร.ม.(a,b) = 12 และ ค.ร.น.(a,b) = 360 และ a = 72 จงหาค่า b',
+      nums:[72,360,12],
+      steps:[
+        'ใช้สูตร: ห.ร.ม. × ค.ร.น. = a × b',
+        '12 × 360 = 72 × b',
+        '4320 = 72b',
+        'b = 4320/72 = 60'
+      ],
+      ans:'b = 60'
+    },
+    {
+      title:'ข้อ 10', diff:'elite',
+      q:'โรงเรียนจัดแถวนักเรียน ถ้าจัดแถวละ 12 คน หรือแถวละ 15 คน หรือแถวละ 20 คน จะเหลือนักเรียน 7 คนเสมอ ถ้านักเรียนมีทั้งหมดไม่เกิน 200 คน โรงเรียนนี้มีนักเรียนกี่คน',
+      nums:[12,15,20],
+      remainder:7,
+      steps:[
+        '12 = 2²×3, 15 = 3×5, 20 = 2²×5',
+        'ค.ร.น. = 2²×3×5 = 60',
+        'จำนวนนักเรียนที่เป็นไปได้ = 60k + 7 (k = 1,2,3,...)',
+        'k=1 → 67, k=2 → 127, k=3 → 187, k=4 → 247 (เกิน 200)',
+        'ดังนั้นค่าที่มากที่สุดไม่เกิน 200 คือ 187 คน'
+      ],
+      ans:'187 คน'
+    }
+  ]
+};
+
+// ============================================================
+// SELECTION SCREEN
+// ============================================================
+let currentSet=null,currentIdx=0,showAns=false;
+const DIFF_MAP={easy:['diff-easy','ง่าย'],med:['diff-med','ปานกลาง'],hard:['diff-hard','ยาก'],elite:['diff-elite','ระดับแข่งขัน']};
+
+function renderSel(key,btn,color){
+  btn._color=color;setActive(btn);
+  const map={sec11_factor:'แบบฝึกหัด: แยกตัวประกอบ',sec11_div:'แบบฝึกหัด: ตั้งหารสั้น',sec12:'แบบฝึกหัด 1.7',sec13:'แบบฝึกหัด 1.8 (ง่าย/กลาง/ยาก)',sec14:'ข้อสอบยากระดับประเทศ + เฉลย'};
+  setTitle(map[key]);
+  currentSet=key;currentIdx=0;showAns=false;
+  const data=DB[key];
+  const colorMap={teal:'sbt',orange:'sbo',pink:'sbp',purple:'sbu'};
+  const cls=colorMap[color];
+  let h=`<div class="slabel ${color==='teal'?'t':color==='orange'?'o':color==='pink'?'p':'u'}">📋 เลือกข้อที่ต้องการ</div>`;
+  if(key==='sec13'||key==='sec14'){
+    let lvls=['all','easy','med','hard'];
+    if(key==='sec14')lvls.push('elite');
+    let lvlLabel={all:'ทั้งหมด',easy:'🟢 ง่าย',med:'🟡 กลาง',hard:'🔴 ยาก',elite:'🟣 แข่งขัน'};
+    h+=`<div class="ctrl-bar" style="margin-top:0;margin-bottom:6px">`;
+    lvls.forEach((lv,li)=>{
+      h+=`<button class="btn-reset diff-filter-btn${li===0?' active':''}" data-lvl="${lv}" onclick="filterDiff(this,'${lv}')">${lvlLabel[lv]}</button>`;
+    });
+    h+=`</div>`;
+    h+=`<div class="sel-grid" id="sel-grid-diff">`;
+    data.forEach((d,i)=>{
+      const dm=DIFF_MAP[d.diff]||DIFF_MAP.med;
+      h+=`<button class="sel-btn sel-btn-diff ${cls}" data-diff="${d.diff}" onclick="loadQ(${i})">${d.title}<span class="diff-tag ${dm[0]}" style="margin:0">${dm[1]}</span></button>`;
+    });
+    h+=`</div>`;
+  } else {
+    h+=`<div class="sel-grid">`;
+    data.forEach((d,i)=>h+=`<button class="sel-btn ${cls}" onclick="loadQ(${i})">${d[0]}</button>`);
+    h+=`</div>`;
+  }
+  setDC(h);
+  if(window.innerWidth<768)toggleSidebar();
+}
+
+function filterDiff(btn,lvl){
+  document.querySelectorAll('.diff-filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#sel-grid-diff .sel-btn').forEach(b=>{
+    b.style.display=(lvl==='all'||b.dataset.diff===lvl)?'flex':'none';
+  });
+}
+
+// ---- step-by-step solution reveal that works for every question type ----
+function buildSec13Steps(item){
+  let steps=[];
+  steps.push(`สังเกตคำสำคัญ "พร้อมกัน / ซ้ำทุก..." → โจทย์นี้ต้องใช้ <b>ค.ร.น.</b> ของ ${item.nums.join(', ')}`);
+  item.nums.forEach(n=>steps.push(`แยกตัวประกอบ: ${n} = ${primeFactors(n).join(' × ')}`));
+  let lc=lcmArr(item.nums);
+  steps.push(`ค.ร.น.(${item.nums.join(', ')}) = ${lc}`);
+  if(item.extra){item.extra.forEach(e=>steps.push(e));}
+  return{steps,lcm:lc};
+}
+
+function loadQ(idx){
+  currentIdx=idx;showAns=false;
+  const data=DB[currentSet];
+
+  if(currentSet==='sec14'){
+    const q=data[idx];
+    const dm=DIFF_MAP[q.diff]||DIFF_MAP.hard;
+    let h=`<div class="slabel u">${q.title} — โจทย์แข่งขันระดับประเทศ <span class="diff-tag ${dm[0]}">${dm[1]}</span></div>`;
+    h+=`<div class="rem-story" style="border-color:#7c3aed">📌 <b>โจทย์:</b> ${q.q}</div>`;
+    h+=solShellHtml();
+    h+=navBtns(idx,data.length);
+    setDC(h);
+    solStart(q.steps,`<p>คำตอบ: ${q.ans}</p>`);
+    return;
+  }
+
+  if(currentSet==='sec13'){
+    const q=data[idx];
+    const dm=DIFF_MAP[q.diff]||DIFF_MAP.med;
+    let h=`<div class="slabel p">${q.title} — โจทย์ปัญหา <span class="diff-tag ${dm[0]}">${dm[1]}</span></div>`;
+    h+=`<div class="rem-story">📌 <b>โจทย์:</b> ${q.q}</div>`;
+    h+=solShellHtml();
+    h+=navBtns(idx,data.length);
+    setDC(h);
+    let sol=buildSec13Steps(q);
+    solStart(sol.steps,`<p>คำตอบ: ${q.answer||(sol.lcm+' '+q.unit)}</p>`);
+    return;
+  }
+
+  const q=data[idx];
+  let h=`<div class="slabel ${currentSet.includes('11')?'t':'o'}">${q[0]} — ${q[1]}</div>`;
+  h+=solShellHtml();
+  h+=navBtns(idx,data.length);
+  setDC(h);
+
+  if(currentSet==='sec11_factor'){
+    let nums=q[2];
+    let steps=nums.map(n=>`${n} = ${primeFactors(n).join(' × ')}`);
+    let lc=lcmArr(nums);
+    solStart(steps,`<p>ค.ร.น. = ${lc}</p>`);
+  } else if(currentSet==='sec11_div'){
+    let nums=q[2];
+    let r=calcDiv(nums);
+    let cur=[...nums];
+    let steps=r.steps.map(s=>{
+      let after=s.before.map(n=>n%s.d===0?Math.floor(n/s.d):n);
+      let line=`หารด้วย ${s.d}: [${s.before.join(', ')}] → [${after.join(', ')}]`;
+      return line;
+    });
+    steps.push(`เหลือ [${r.final.join(', ')}] ทุกช่องเป็น 1 → หารสั้นเสร็จสมบูรณ์`);
+    solStart(steps,`<p>ค.ร.น. = ${r.lcm}</p>`);
+  } else if(currentSet==='sec12'){
+    let nums=q[2],rem=q[3];
+    let r=calcDiv(nums);
+    let steps=r.steps.map(s=>{
+      let after=s.before.map(n=>n%s.d===0?Math.floor(n/s.d):n);
+      return `หารด้วย ${s.d}: [${s.before.join(', ')}] → [${after.join(', ')}]`;
+    });
+    steps.push(`เหลือ [${r.final.join(', ')}] ทุกช่องเป็น 1 → ค.ร.น. = ${r.allFactors.join(' × ')} = ${r.lcm}`);
+    steps.push(`บวกเศษกลับ: ${r.lcm} + ${rem} = ${r.lcm+rem}`);
+    solStart(steps,`<p>คำตอบ = ${r.lcm+rem}</p>`);
+  }
+}
+
+function solShellHtml(){
+  return `<div id="sol-steps"></div>
+    <div class="ctrl-bar">
+      <button class="btn-next" id="sol-next-btn" onclick="solNext()"><i class="ph-bold ph-arrow-right"></i> ขั้นตอนถัดไป</button>
+      <button class="btn-auto" onclick="solShowAll()"><i class="ph-bold ph-list-bullets"></i> แสดงทั้งหมด</button>
+      <button class="btn-reset" onclick="solReset()"><i class="ph-bold ph-arrow-counter-clockwise"></i> เริ่มใหม่</button>
+      <span class="step-info" id="sol-step-info"></span>
+    </div>
+    <div id="sol-answer" class="ans-box fi" style="display:none"></div>`;
+}
+
+let solState={steps:[],idx:-1,answer:''};
+
+function solStart(steps,answerHtml){
+  solState={steps,idx:-1,answer:answerHtml};
+  let sc=document.getElementById('sol-steps');
+  if(sc)sc.innerHTML='';
+  let ab=document.getElementById('sol-answer');
+  if(ab){ab.style.display='none';ab.innerHTML=''}
+  updateSolInfo();
+}
+
+function solNext(){
+  if(solState.idx>=solState.steps.length)return;
+  solState.idx++;
+  if(solState.idx<solState.steps.length){
+    let sc=document.getElementById('sol-steps');
+    if(sc){
+      let el=document.createElement('div');
+      el.className='sol-step';
+      el.innerHTML=`<span class="num">${solState.idx+1}</span>${solState.steps[solState.idx]}`;
+      sc.appendChild(el);
+    }
+  } else {
+    let ab=document.getElementById('sol-answer');
+    if(ab){ab.innerHTML=solState.answer;ab.style.display='block';ab.classList.add('fi')}
+  }
+  updateSolInfo();
+}
+
+function solShowAll(){
+  let guard=0;
+  while(solState.idx<solState.steps.length&&guard<200){solNext();guard++}
+}
+
+function solReset(){
+  solStart(solState.steps,solState.answer);
+}
+
+function updateSolInfo(){
+  let el=document.getElementById('sol-step-info');
+  if(el)el.textContent=`ขั้นตอน ${Math.max(0,solState.idx+1)} / ${solState.steps.length+1}`;
+}
+
+function navBtns(i,len){
+  let h=`<div class="nav-btns">`;
+  if(i>0)h+=`<button class="btn-p" onclick="loadQ(${i-1})"><i class="ph-bold ph-arrow-left"></i> ข้อก่อน</button>`;
+  if(i<len-1)h+=`<button class="btn-n" onclick="loadQ(${i+1})">ข้อถัดไป <i class="ph-bold ph-arrow-right"></i></button>`;
+  h+=`</div>`;return h;
+}
+
+// ============================================================
+// ===== SECTION 11 CONCEPT: SHORT DIVISION + MULTIPLES =====
+// ============================================================
+let divState={nums:[],steps:[],stepIdx:0,autoTimer:null};
+
+function loadConcept(sec,btn){
+  btn._color=sec==='sec11'?'teal':sec==='sec12'?'orange':sec==='sec13'?'pink':sec==='sec16'?'cyan':'purple';
+  setActive(btn);
+  if(sec==='sec11'){render11();setTitle('ส่วนที่ 11 — หา ค.ร.น. (บทเรียน + แอนิเมชัน)')}
+  else if(sec==='sec12'){render12();setTitle('ส่วนที่ 12 — ค.ร.น. แบบมีเศษ (บทเรียน + แอนิเมชัน)')}
+  else if(sec==='sec13'){render13();setTitle('ส่วนที่ 13 — โจทย์ปัญหา (บทเรียน + แอนิเมชัน)')}
+  else if(sec==='sec16'){render16();setTitle('ส่วนที่ 16 — ความสัมพันธ์ ค.ร.น. × ห.ร.ม.')}
+  else{render15();setTitle('ส่วนที่ 15 — คลังทริคคิดเร็ว & ข้อจำกัด')}
+  if(window.innerWidth<768)toggleSidebar();
+}
+
+// ---- Multiples grid ----
+function buildMultiplesGrid(nums){
+  const colors=[
+    {bg:'#dbeafe',border:'#3b82f6',text:'#1d4ed8',label:'#1d4ed8'},
+    {bg:'#ede9fe',border:'#8b5cf6',text:'#6d28d9',label:'#6d28d9'},
+    {bg:'#dcfce7',border:'#22c55e',text:'#15803d',label:'#15803d'},
+  ];
+  let lc=lcmArr(nums);
+  let maxShow=Math.min(lc*2,120);
+  let allMults=nums.map(n=>{let m=new Set();for(let i=n;i<=maxShow;i+=n)m.add(i);return m});
+  let commonMults=new Set();
+  for(let v=1;v<=maxShow;v++){if(nums.every((_,i)=>allMults[i].has(v)))commonMults.add(v)}
+  let h='<div class="multiples-visual">';
+  nums.forEach((n,ni)=>{
+    let c=colors[ni%colors.length];
+    h+=`<div class="mult-row"><span class="mult-label" style="color:${c.label}">${n}×</span>`;
+    let shown=0;
+    for(let i=n;i<=maxShow&&shown<20;i+=n,shown++){
+      let isLCM=commonMults.has(i)&&i===lc;
+      let isCommon=commonMults.has(i);
+      let style=`background:${isLCM?'#ccf7ef':isCommon?c.bg:c.bg};border:2px solid ${isCommon?c.border:'transparent'};color:${c.text}`;
+      let extra=isLCM?'lcm-hit hit':isCommon?'hit':'';
+      h+=`<div class="mult-chip ${extra}" style="${style}" title="${n}×${i/n}=${i}">${i}</div>`;
+    }
+    h+=`</div>`;
+  });
+  if(nums.length>1){
+    h+=`<div class="mult-row" style="margin-top:4px"><span class="mult-label" style="color:#0f766e;font-size:11px">ร่วม</span>`;
+    let shown=0;
+    commonMults.forEach(v=>{
+      if(shown>=8)return;
+      let isLCM=v===lc;
+      h+=`<div class="mult-chip ${isLCM?'lcm-hit':''}" style="background:${isLCM?'#ccf7ef':'#e6fbf8'};border:2px solid #0d9488;color:#0f766e" title="ตัวคูณร่วม">${v}</div>`;
+      shown++;
+    });
+    h+=`</div>`;
+  }
+  h+='</div>';
+  return h;
+}
+
+// ---- Animated short division ----
+function buildDivAnimHTML(nums){
+  let r=calcDiv(nums);
+  divState={nums,steps:r.steps,final:r.final,allFactors:r.allFactors,lcm:r.lcm,stepIdx:-1,autoTimer:null};
+  let numCols=nums.length;
+  // build the table shell
+  let h=`<div class="div-stage" id="div-stage">`;
+  h+=`<div class="div-col-wrap" id="div-col-wrap">`;
+  // prime column
+  h+=`<div class="div-prime-col" id="div-prime-col">`;
+  // header spacer
+  h+=`<div style="height:46px"></div>`;
+  r.steps.forEach((_,si)=>{
+    h+=`<div class="div-prime-cell" id="dpc-${si}"></div>`;
+  });
+  // final row spacer
+  h+=`<div style="height:46px"></div>`;
+  h+=`</div>`;
+  // vertical line
+  h+=`<div class="div-vline" id="div-vline" style="opacity:0"></div>`;
+  // number columns
+  nums.forEach((n,ni)=>{
+    h+=`<div class="div-num-col">`;
+    // header: original number
+    h+=`<div class="div-num-cell" id="dnh-${ni}" style="color:#38425c;background:#eef1f6;border:2px solid #c3cce0;opacity:1;transform:none">${n}</div>`;
+    // horizontal line under header
+    if(ni===0)h+=``;
+    // step rows
+    r.steps.forEach((_,si)=>{
+      h+=`<div class="div-num-cell" id="dnc-${si}-${ni}"></div>`;
+    });
+    // final row
+    h+=`<div class="div-num-cell" id="dnf-${ni}"></div>`;
+    h+=`</div>`;
+  });
+  h+=`</div></div>`;
+
+  // result chips (hidden)
+  h+=`<div class="div-result-row" id="div-result-row">`;
+  h+=`<span style="font-size:12px;color:#5c6b8a;margin-right:6px">ค.ร.น. =</span>`;
+  r.allFactors.forEach(f=>{
+    h+=`<div class="div-result-chip">${f}</div>`;
+  });
+  if(r.allFactors.length>1){
+    h+=`<div class="div-result-chip" style="color:#5c6b8a;background:#eef1f6;border-color:#c3cce0">×</div>`;
+    h+=`<div class="div-result-chip eq">= ${r.lcm}</div>`;
+  }
+  h+=`</div>`;
+  h+=`<div class="lcm-reveal" id="lcm-reveal">`;
+  h+=`<div class="lcm-formula">ค.ร.น.(${nums.join(', ')}) = ${r.allFactors.join(' × ')}</div>`;
+  h+=`<div class="lcm-number">= ${r.lcm}</div>`;
+  h+=`</div>`;
+  return h;
+}
+
+function divNext(){
+  let s=divState;
+  let step=s.stepIdx+1;
+  if(step>s.steps.length) return;
+  s.stepIdx=step;
+  document.getElementById('div-vline').style.opacity='1';
+
+  if(step<s.steps.length){
+    let info=s.steps[step];
+    // show prime
+    let pc=document.getElementById(`dpc-${step}`);
+    if(pc){pc.textContent=info.d;pc.classList.add('show','glow');setTimeout(()=>pc.classList.remove('glow'),800)}
+    // show numbers
+    s.nums.forEach((_,ni)=>{
+      let before=info.before[ni];
+      let after=before%info.d===0?Math.floor(before/info.d):before;
+      let cell=document.getElementById(`dnc-${step}-${ni}`);
+      if(!cell)return;
+      cell.textContent=after;
+      cell.classList.add('show');
+      if(before%info.d===0){cell.classList.add('divided')}
+      else{cell.classList.add('skip')}
+    });
+    // trick callout
+    showTrickForStep(step,info,s);
+  } else {
+    // final row
+    s.nums.forEach((_,ni)=>{
+      let cell=document.getElementById(`dnf-${ni}`);
+      if(!cell)return;
+      let v=s.final[ni];
+      cell.textContent=v;
+      cell.classList.add('show');
+      cell.classList.add(v===1?'final1':'final');
+    });
+    // show result
+    setTimeout(()=>{
+      let r=document.getElementById('div-result-row');
+      if(r)r.classList.add('show');
+    },400);
+    setTimeout(()=>{
+      let r=document.getElementById('lcm-reveal');
+      if(r)r.classList.add('show');
+      showFinalTrick(s);
+    },900);
+  }
+  let btn=document.getElementById('div-next-btn');
+  if(btn){
+    if(step>=s.steps.length)btn.disabled=true;
+  }
+  updateStepInfo();
+}
+
+function showTrickForStep(step,info,s){
+  let tc=document.getElementById('trick-callout');
+  if(!tc)return;
+  tc.className='trick-callout show';
+  let nums=info.before;
+  let d=info.d;
+  if(d===2){
+    tc.className='trick-callout blue show';
+    tc.innerHTML=`<span class="trick-tag">TRICK</span> เลขที่หารด้วย 2 ได้ → <b>ต้องเป็นเลขคู่</b> (เลขสุดท้ายเป็น 0,2,4,6,8)`;
+  } else if(d===3){
+    tc.className='trick-callout green show';
+    let sums=nums.filter(n=>n%3===0).map(n=>{let s=n.toString().split('').reduce((a,b)=>a+ +b,0);return`${n} → ผลบวกหลัก = ${s}`});
+    tc.innerHTML=`<span class="trick-tag">TRICK</span> เลขที่หารด้วย 3 ได้ → <b>ผลบวกตัวเลขหารด้วย 3 ลงตัว</b><br><small>${sums.join(' · ')}</small>`;
+  } else if(d===5){
+    tc.className='trick-callout yellow show';
+    tc.innerHTML=`<span class="trick-tag">TRICK</span> เลขที่หารด้วย 5 ได้ → <b>เลขสุดท้ายต้องเป็น 0 หรือ 5</b>`;
+  } else if(d===7){
+    tc.className='trick-callout red show';
+    tc.innerHTML=`<span class="tip-tag">TIP</span> ตัวหาร 7 ไม่มีทางลัดง่ายๆ → <b>ลองหารตรงๆ</b> ได้เลย`;
+  } else {
+    tc.className='trick-callout blue show';
+    let notDiv=nums.filter(n=>n%d!==0&&n>1);
+    let msg=notDiv.length?`<br><span class="warn-tag">หมายเหตุ</span> ${notDiv.join(', ')} หารไม่ลงตัว → <b>ทิ้งค่าเดิมไว้</b>`:'';
+    tc.innerHTML=`<span class="tip-tag">TIP</span> หาร <b>${d}</b> กับทุกจำนวนที่หารได้${msg}`;
+  }
+}
+
+function showFinalTrick(s){
+  let tc=document.getElementById('trick-callout');
+  if(!tc)return;
+  let ones=s.final.filter(n=>n===1).length;
+  let notOnes=s.final.filter(n=>n>1);
+  if(notOnes.length===0){
+    tc.className='trick-callout green show';
+    tc.innerHTML=`<span class="trick-tag">✓ สำเร็จ</span> เหลือ 1 ทุกช่อง → หารสั้นเสร็จสมบูรณ์! <b>ค.ร.น. = ${s.lcm}</b>`;
+  } else {
+    tc.className='trick-callout yellow show';
+    tc.innerHTML=`<span class="warn-tag">หมายเหตุ</span> เหลือ <b>${notOnes.join(', ')}</b> → เป็นจำนวนเฉพาะที่หารกันไม่ได้ → ต้องนำมาคูณด้วย<br>
+    <span class="trick-tag">TRICK</span> ถ้าเหลือเลข 1 ทั้งหมดแสดงว่าหารสั้นเสร็จสมบูรณ์แล้ว`;
+  }
+}
+
+function updateStepInfo(){
+  let el=document.getElementById('step-info');
+  if(el){
+    let s=divState;
+    let cur=s.stepIdx+1;
+    let tot=s.steps.length+1;
+    el.textContent=`ขั้นตอน ${cur} / ${tot}`;
+  }
+}
+
+function divReset(){
+  if(divState.autoTimer){clearInterval(divState.autoTimer);divState.autoTimer=null}
+  // rebuild
+  let nums=divState.nums;
+  let stage=document.getElementById('div-stage-wrap');
+  if(stage){
+    stage.innerHTML=buildDivAnimHTML(nums);
+  }
+  divState.stepIdx=-1;
+  updateStepInfo();
+  let btn=document.getElementById('div-next-btn');
+  if(btn)btn.disabled=false;
+  let tc=document.getElementById('trick-callout');
+  if(tc){tc.className='trick-callout';tc.innerHTML=''}
+}
+
+function divAuto(){
+  if(divState.autoTimer)return;
+  divNext();
+  divState.autoTimer=setInterval(()=>{
+    if(divState.stepIdx>=divState.steps.length){
+      clearInterval(divState.autoTimer);divState.autoTimer=null;return;
+    }
+    divNext();
+  },1400);
+}
+
+// ---- MAIN SEC11 RENDER ----
+function render11(){
+  let initNums=[12,18];
+  let h=``;
+  // Header
+  h+=`<div class="slabel t">📐 ส่วนที่ 11 — การหา ค.ร.น. (ผลคูณร่วมที่น้อยที่สุด)</div>`;
+
+  // --- Part A: Multiples visualization ---
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-circles-three" style="color:#0d9488"></i> แนวคิด: ตัวคูณร่วม</h3>
+    <p>ค.ร.น. คือ <b style="color:#101827">จำนวนที่น้อยที่สุด</b>ที่หารด้วยทุกจำนวนในโจทย์ได้ลงตัว<br>วิธีง่ายๆ คือมองหาตัวเลขที่ <b style="color:#0f766e">ปรากฏในทุกแถว</b> พร้อมกัน</p>
+  </div>`;
+
+  h+=`<div class="anim-wrap">
+    <div class="anim-title"><i class="ph-fill ph-dots-nine"></i> ตัวคูณร่วม — ปรับตัวเลขได้</div>
+    <div class="slider-row">
+      <label>จำนวนที่ 1</label>
+      <input type="range" min="2" max="18" value="12" id="sl-n1" oninput="updateMultiples()">
+      <span class="slider-val" id="sv-n1">12</span>
+    </div>
+    <div class="slider-row">
+      <label>จำนวนที่ 2</label>
+      <input type="range" min="2" max="18" value="18" id="sl-n2" oninput="updateMultiples()">
+      <span class="slider-val" id="sv-n2">18</span>
+    </div>
+    <div class="slider-row">
+      <label>จำนวนที่ 3</label>
+      <input type="range" min="1" max="18" value="1" id="sl-n3" oninput="updateMultiples()">
+      <span class="slider-val" id="sv-n3" style="color:#5c6b8a">ปิด</span>
+    </div>
+    <div id="mult-grid"></div>
+    <div id="mult-lcm-label" style="margin-top:10px;font-size:15px;font-weight:700;color:#0f766e;text-align:center"></div>
+  </div>`;
+
+  // --- Part B: Short Division Animated ---
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-divide" style="color:#0369a1"></i> วิธีตั้งหารสั้น (Short Division)</h3>
+    <p>หารด้วยจำนวนเฉพาะ (2, 3, 5, 7, ...) ทีละตัว จนเหลือ <b style="color:#a16207">1 ทุกช่อง</b><br>
+    แล้วนำ <b style="color:#101827">ตัวหารทั้งหมด × เลขที่เหลือ</b> = ค.ร.น.</p>
+    <div class="cpre">ขั้นตอน:  1) เขียนตัวเลขเรียงกัน
+             2) หาตัวเฉพาะที่หารได้อย่างน้อย 2 จำนวน
+             3) หารทีละขั้น (หารไม่ได้ = ทิ้งค่าเดิม)
+             4) ทำซ้ำจนหารต่อไม่ได้
+             5) ค.ร.น. = ผลคูณตัวหารทั้งหมด</div>
+  </div>`;
+
+  h+=`<div class="anim-wrap">
+    <div class="anim-title"><i class="ph-fill ph-play-circle"></i> Animation ตั้งหารสั้น — กดทีละขั้น</div>
+    <div class="slider-row">
+      <label>จำนวนที่ 1</label>
+      <input type="range" min="2" max="30" value="12" id="sl-d1" oninput="updateDivNums()">
+      <span class="slider-val" id="sv-d1">12</span>
+    </div>
+    <div class="slider-row">
+      <label>จำนวนที่ 2</label>
+      <input type="range" min="2" max="30" value="18" id="sl-d2" oninput="updateDivNums()">
+      <span class="slider-val" id="sv-d2">18</span>
+    </div>
+    <div class="slider-row">
+      <label>จำนวนที่ 3</label>
+      <input type="range" min="1" max="30" value="1" id="sl-d3" oninput="updateDivNums()">
+      <span class="slider-val" id="sv-d3" style="color:#5c6b8a">ปิด</span>
+    </div>
+    <div id="div-stage-wrap">${buildDivAnimHTML([12,18])}</div>
+    <div class="trick-callout" id="trick-callout"></div>
+    <div class="ctrl-bar">
+      <button class="btn-next" id="div-next-btn" onclick="divNext()"><i class="ph-bold ph-arrow-right"></i> ขั้นถัดไป</button>
+      <button class="btn-auto" onclick="divAuto()"><i class="ph-bold ph-play"></i> อัตโนมัติ</button>
+      <button class="btn-reset" onclick="divReset()"><i class="ph-bold ph-arrow-counter-clockwise"></i> เริ่มใหม่</button>
+      <span class="step-info" id="step-info">ขั้นตอน 0 / ${calcDiv([12,18]).steps.length+1}</span>
+    </div>
+  </div>`;
+
+  // Trick summary cards
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightbulb" style="color:#a16207"></i> Tricks & จุดสังเกต สำคัญ</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">
+      <div style="background:#eff6ff;border:1px solid #93c5fd;border-radius:9px;padding:10px">
+        <div style="font-size:11px;font-weight:700;color:#1d4ed8;margin-bottom:4px">÷ 2</div>
+        <div style="font-size:12px;color:#1e40af">เลขสุดท้ายเป็น <b>0,2,4,6,8</b></div>
+      </div>
+      <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:9px;padding:10px">
+        <div style="font-size:11px;font-weight:700;color:#15803d;margin-bottom:4px">÷ 3</div>
+        <div style="font-size:12px;color:#166534">บวกตัวเลขทุกหลัก → หาร 3 ลงตัว</div>
+      </div>
+      <div style="background:#fffbeb;border:1px solid #fde047;border-radius:9px;padding:10px">
+        <div style="font-size:11px;font-weight:700;color:#a16207;margin-bottom:4px">÷ 5</div>
+        <div style="font-size:12px;color:#854d0e">เลขสุดท้ายเป็น <b>0</b> หรือ <b>5</b></div>
+      </div>
+      <div style="background:#fef2f2;border:1px solid #fca5a5;border-radius:9px;padding:10px">
+        <div style="font-size:11px;font-weight:700;color:#b91c1c;margin-bottom:4px">⚠ ระวัง</div>
+        <div style="font-size:12px;color:#991b1b">หารไม่ได้ → <b>ทิ้งค่าเดิม</b> ไม่ใส่ 0!</div>
+      </div>
+    </div>
+    <div style="background:#ede9fe;border:1px solid #c4b5fd;border-radius:9px;padding:10px;margin-top:8px">
+      <div style="font-size:11px;font-weight:700;color:#6d28d9;margin-bottom:4px">🔑 กฎทอง</div>
+      <div style="font-size:12px;color:#5b21b6">ต้องหารได้ <b>อย่างน้อย 2 จำนวน</b> จึงจะเดินหน้าได้ · ถ้าเหลือ 1 ทุกช่อง = เสร็จสิ้น</div>
+    </div>
+  </div>`;
+
+  setDC(h);
+  setTimeout(()=>{updateMultiples();updateStepInfo();},50);
+}
+
+function updateMultiples(){
+  let n1=+document.getElementById('sl-n1').value;
+  let n2=+document.getElementById('sl-n2').value;
+  let n3=+document.getElementById('sl-n3').value;
+  document.getElementById('sv-n1').textContent=n1;
+  document.getElementById('sv-n2').textContent=n2;
+  document.getElementById('sv-n3').textContent=n3===1?'ปิด':n3;
+  document.getElementById('sv-n3').style.color=n3===1?'#5c6b8a':'#0f766e';
+  let nums=n3===1?[n1,n2]:[n1,n2,n3];
+  let lc=lcmArr(nums);
+  document.getElementById('mult-grid').innerHTML=buildMultiplesGrid(nums);
+  document.getElementById('mult-lcm-label').textContent=`✦ ค.ร.น.(${nums.join(', ')}) = ${lc}`;
+}
+
+function updateDivNums(){
+  let n1=+document.getElementById('sl-d1').value;
+  let n2=+document.getElementById('sl-d2').value;
+  let n3=+document.getElementById('sl-d3').value;
+  document.getElementById('sv-d1').textContent=n1;
+  document.getElementById('sv-d2').textContent=n2;
+  document.getElementById('sv-d3').textContent=n3===1?'ปิด':n3;
+  document.getElementById('sv-d3').style.color=n3===1?'#5c6b8a':'#0f766e';
+  let nums=n3===1?[n1,n2]:[n1,n2,n3];
+  divState.autoTimer&&clearInterval(divState.autoTimer);
+  let wrap=document.getElementById('div-stage-wrap');
+  if(wrap){wrap.innerHTML=buildDivAnimHTML(nums)}
+  let tc=document.getElementById('trick-callout');
+  if(tc){tc.className='trick-callout';tc.innerHTML=''}
+  let r=calcDiv(nums);
+  let si=document.getElementById('step-info');
+  if(si)si.textContent=`ขั้นตอน 0 / ${r.steps.length+1}`;
+  let nb=document.getElementById('div-next-btn');
+  if(nb)nb.disabled=false;
+}
+
+// ============================================================
+// ===== SECTION 12: REMAINDER ANIMATION =====
+// ============================================================
+function render12(){
+  let h=`<div class="slabel o">🧮 ส่วนที่ 12 — ค.ร.น. แบบมีเศษ</div>`;
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-plus-minus" style="color:#ea580c"></i> แนวคิด</h3>
+    <p>โจทย์ถามหาจำนวนที่ <b style="color:#101827">หารด้วย a, b แล้วเหลือเศษ r เท่ากัน</b><br>
+    คำตอบ = ค.ร.น.(a, b) + r</p>
+    <div class="cpre">ถ้าหารด้วย a เหลือเศษ r ทุกตัว:
+  คำตอบ = LCM(a, b, ...) + r</div>
+  </div>`;
+
+  h+=`<div class="rem-anim-wrap">
+    <div class="anim-title"><i class="ph-fill ph-number-circle-one"></i> ทดลองเลือกตัวเลข</div>
+    <div class="slider-row">
+      <label>จำนวน a</label>
+      <input type="range" min="2" max="12" value="4" id="rem-a" oninput="updateRem()">
+      <span class="slider-val" id="rem-av">4</span>
+    </div>
+    <div class="slider-row">
+      <label>จำนวน b</label>
+      <input type="range" min="2" max="12" value="6" id="rem-b" oninput="updateRem()">
+      <span class="slider-val" id="rem-bv">6</span>
+    </div>
+    <div class="slider-row">
+      <label>เศษ r</label>
+      <input type="range" min="0" max="10" value="2" id="rem-r" oninput="updateRem()">
+      <span class="slider-val" id="rem-rv">2</span>
+    </div>
+    <div id="rem-output"></div>
+  </div>`;
+
+  setDC(h);
+  setTimeout(updateRem,50);
+}
+
+function updateRem(){
+  let a=+document.getElementById('rem-a').value;
+  let b=+document.getElementById('rem-b').value;
+  let r=+document.getElementById('rem-r').value;
+  document.getElementById('rem-av').textContent=a;
+  document.getElementById('rem-bv').textContent=b;
+  document.getElementById('rem-rv').textContent=r;
+  // auto-clamp r
+  let maxR=Math.min(a,b)-1;
+  if(r>=Math.min(a,b)){r=Math.min(a,b)-1;document.getElementById('rem-r').value=r;document.getElementById('rem-rv').textContent=r;}
+  let lc=lcmArr([a,b]);
+  let ans=lc+r;
+
+  // Build number line SVG
+  let maxVal=Math.min(ans+lc,lc*3+r);
+  let svgW=Math.max(500,maxVal*18+40);
+  let svgH=100;
+  let margin=30;
+  let scale=(svgW-margin*2)/maxVal;
+
+  let svg=`<svg viewBox="0 0 ${svgW} ${svgH}" style="min-width:${svgW}px;height:${svgH}px">`;
+  // axis
+  svg+=`<line x1="${margin}" y1="50" x2="${svgW-10}" y2="50" stroke="#94a3b8" stroke-width="2"/>`;
+  svg+=`<polygon points="${svgW-10},50 ${svgW-18},45 ${svgW-18},55" fill="#64748b"/>`;
+
+  // ticks for a and b
+  let aColor='#1d4ed8',bColor='#6d28d9';
+  let aMults=[],bMults=[];
+  for(let i=a;i<=maxVal;i+=a)aMults.push(i);
+  for(let i=b;i<=maxVal;i+=b)bMults.push(i);
+  // draw a multiples
+  aMults.forEach(v=>{
+    let x=margin+v*scale;
+    let isLCM=v%lc===0;
+    svg+=`<line x1="${x}" y1="38" x2="${x}" y2="58" stroke="${isLCM?'#0d9488':aColor}" stroke-width="${isLCM?3:1.5}"/>`;
+    svg+=`<text x="${x}" y="32" text-anchor="middle" font-size="10" fill="${isLCM?'#0f766e':aColor}">${v}</text>`;
+  });
+  // draw b multiples
+  bMults.forEach(v=>{
+    let x=margin+v*scale;
+    let isLCM=v%lc===0;
+    svg+=`<line x1="${x}" y1="42" x2="${x}" y2="62" stroke="${isLCM?'#0d9488':bColor}" stroke-width="${isLCM?3:1}"/>`;
+    if(!aMults.includes(v))svg+=`<text x="${x}" y="76" text-anchor="middle" font-size="10" fill="${isLCM?'#0f766e':bColor}">${v}</text>`;
+  });
+
+  // lcm marker
+  let lcX=margin+lc*scale;
+  svg+=`<circle cx="${lcX}" cy="50" r="8" fill="#ccf7ef" stroke="#0d9488" stroke-width="2"/>`;
+  svg+=`<text x="${lcX}" y="54" text-anchor="middle" font-size="9" font-weight="bold" fill="#0f766e">${lc}</text>`;
+
+  // answer marker (lcm+r)
+  if(r>0){
+    let ansX=margin+ans*scale;
+    svg+=`<line x1="${ansX}" y1="34" x2="${ansX}" y2="66" stroke="#ea580c" stroke-width="3" stroke-dasharray="4,2"/>`;
+    svg+=`<circle cx="${ansX}" cy="50" r="9" fill="#fff3e6" stroke="#ea580c" stroke-width="2"/>`;
+    svg+=`<text x="${ansX}" y="54" text-anchor="middle" font-size="9" font-weight="bold" fill="#c2410c">${ans}</text>`;
+    svg+=`<text x="${ansX}" y="87" text-anchor="middle" font-size="10" font-weight="bold" fill="#c2410c">+${r}=${ans}</text>`;
+  }
+
+  // labels
+  svg+=`<text x="${margin-5}" y="34" font-size="10" fill="${aColor}" text-anchor="end">×${a}</text>`;
+  svg+=`<text x="${margin-5}" y="78" font-size="10" fill="${bColor}" text-anchor="end">×${b}</text>`;
+  svg+=`</svg>`;
+
+  let out=`
+    <div class="rem-number-line"><div class="rem-svg-wrap">${svg}</div></div>
+    <div style="background:#ffffff;border:1px solid #dbe2f3;border-radius:10px;padding:14px;margin-top:10px;font-size:14px">
+      <div style="color:#5c6b8a;margin-bottom:6px">โจทย์: หาจำนวนที่น้อยที่สุดที่หารด้วย <b style="color:#1d4ed8">${a}</b> และ <b style="color:#6d28d9">${b}</b> แล้วเหลือเศษ <b style="color:#c2410c">${r}</b></div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:8px">
+        <div style="background:#e6fbf8;border:1px solid #0d9488;border-radius:8px;padding:6px 14px;font-weight:700;color:#0f766e">ค.ร.น.(${a},${b}) = ${lc}</div>
+        <div style="color:#5c6b8a;font-size:18px">+</div>
+        <div style="background:#fff3e6;border:1px solid #ea580c;border-radius:8px;padding:6px 14px;font-weight:700;color:#c2410c">เศษ ${r}</div>
+        <div style="color:#5c6b8a;font-size:18px">=</div>
+        <div style="background:#fdeaf3;border:2px solid #db2777;border-radius:8px;padding:6px 16px;font-size:18px;font-weight:700;color:#be185d">คำตอบ = ${ans}</div>
+      </div>
+      <div style="margin-top:10px;font-size:12px;color:#94a3b8">✅ ตรวจสอบ: ${ans}÷${a} เหลือเศษ ${ans%a} · ${ans}÷${b} เหลือเศษ ${ans%b}</div>
+    </div>
+  `;
+  document.getElementById('rem-output').innerHTML=out;
+}
+
+// ============================================================
+// ===== SECTION 13: CLOCK + TIMELINE ANIMATION =====
+// ============================================================
+let clockAnim={timer:null,tick:0,maxTick:0,nums:[],lcm:0};
+
+function render13(){
+  let h=`<div class="slabel p">🕐 ส่วนที่ 13 — โจทย์ปัญหา ค.ร.น.</div>`;
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-clock" style="color:#db2777"></i> กลยุทธ์การแก้โจทย์ปัญหา</h3>
+    <p>โจทย์ที่ใช้ ค.ร.น. มักเป็นเรื่อง <b style="color:#101827">พบกัน / ออกพร้อมกัน / เริ่มใหม่พร้อมกัน</b><br>
+    สังเกตคำว่า: "<b style="color:#be185d">นานเท่าไรจึงพร้อมกัน</b>" หรือ "<b style="color:#be185d">กี่หน่วยจึงเจอกันอีก</b>"</p>
+  </div>`;
+
+  h+=`<div class="anim-wrap">
+    <div class="anim-title"><i class="ph-fill ph-play-circle"></i> Simulation: นาฬิกาตีพร้อมกัน</div>
+    <div class="slider-row">
+      <label>วงจร A</label>
+      <input type="range" min="2" max="15" value="4" id="cl-a" oninput="buildClockUI()">
+      <span class="slider-val" id="cl-av">4</span>
+    </div>
+    <div class="slider-row">
+      <label>วงจร B</label>
+      <input type="range" min="2" max="15" value="6" id="cl-b" oninput="buildClockUI()">
+      <span class="slider-val" id="cl-bv">6</span>
+    </div>
+    <div class="slider-row">
+      <label>วงจร C</label>
+      <input type="range" min="1" max="15" value="1" id="cl-c" oninput="buildClockUI()">
+      <span class="slider-val" id="cl-cv" style="color:#5c6b8a">ปิด</span>
+    </div>
+    <div id="clock-area"></div>
+    <div class="ctrl-bar" style="margin-top:10px">
+      <button class="btn-next" onclick="clockPlay()"><i class="ph-bold ph-play"></i> เล่น</button>
+      <button class="btn-reset" onclick="clockReset()"><i class="ph-bold ph-arrow-counter-clockwise"></i> รีเซ็ต</button>
+      <span class="step-info" id="clock-tick-label">เวลา: 0</span>
+    </div>
+  </div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightbulb" style="color:#a16207"></i> ขั้นตอนแก้โจทย์ปัญหา</h3>
+    <ol style="margin-left:18px">
+      <li style="margin-bottom:8px"><b style="color:#101827">อ่านโจทย์</b> → หาว่าอะไรเกิดซ้ำ (ทุกกี่นาที/วัน/รอบ)</li>
+      <li style="margin-bottom:8px"><b style="color:#101827">ตั้งหารสั้น</b> → หา ค.ร.น. ของจำนวนเหล่านั้น</li>
+      <li style="margin-bottom:8px"><b style="color:#101827">ตอบ</b> → ค.ร.น. คือเวลา/จำนวนที่ทุกอย่างเกิดพร้อมกัน</li>
+    </ol>
+  </div>`;
+
+  setDC(h);
+  setTimeout(buildClockUI,50);
+}
+
+function buildClockUI(){
+  let a=+document.getElementById('cl-a').value;
+  let b=+document.getElementById('cl-b').value;
+  let c=+document.getElementById('cl-c').value;
+  document.getElementById('cl-av').textContent=a;
+  document.getElementById('cl-bv').textContent=b;
+  document.getElementById('cl-cv').textContent=c===1?'ปิด':c;
+  document.getElementById('cl-cv').style.color=c===1?'#5c6b8a':'#0f766e';
+  let nums=c===1?[a,b]:[a,b,c];
+  let lc=lcmArr(nums);
+  clockAnim.nums=nums;clockAnim.lcm=lc;clockAnim.tick=0;
+  clockAnim.maxTick=lc;
+  if(clockAnim.timer){clearInterval(clockAnim.timer);clockAnim.timer=null}
+  renderClockArea(nums,lc,0);
+}
+
+function renderClockArea(nums,lc,tick){
+  let colors=[
+    {bg:'#dbeafe',border:'#3b82f6',text:'#1d4ed8',hand:'#1d4ed8'},
+    {bg:'#f3e8ff',border:'#a855f7',text:'#7e22ce',hand:'#7e22ce'},
+    {bg:'#dcfce7',border:'#22c55e',text:'#15803d',hand:'#15803d'},
+  ];
+  let h='';
+  // Clock SVGs
+  h+=`<div class="clock-grid">`;
+  nums.forEach((n,ni)=>{
+    let c=colors[ni%colors.length];
+    let angle=(tick%n)/n*360-90;
+    let rad=angle*Math.PI/180;
+    let cx=50,cy=50,r=36,handL=28;
+    let hx=cx+Math.cos(rad)*handL,hy=cy+Math.sin(rad)*handL;
+    let isHit=tick>0&&tick%n===0;
+    h+=`<div class="clock-box">
+      <div class="clock-lbl" style="color:${c.border}">วงจร ${n} หน่วย ${isHit?'<span style="color:#a16207">✦ ครบรอบ!</span>':''}</div>
+      <svg class="clock-svg" viewBox="0 0 100 100" width="90" height="90">
+        <circle cx="50" cy="50" r="42" fill="${isHit?c.bg:'#ffffff'}" stroke="${isHit?c.border:'#c3cce0'}" stroke-width="${isHit?3:1.5}"/>
+        ${Array.from({length:n},(_, i)=>{
+          let a2=(i/n)*360-90;let r2=a2*Math.PI/180;
+          let mx=cx+Math.cos(r2)*34,my=cy+Math.sin(r2)*34;
+          let passed=i<(tick%n)||(tick%n===0&&tick>0);
+          return`<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="2.5" fill="${passed?c.border:'#c3cce0'}"/>`;
+        }).join('')}
+        <line x1="50" y1="50" x2="${hx.toFixed(1)}" y2="${hy.toFixed(1)}" stroke="${c.hand}" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="50" cy="50" r="4" fill="${c.border}"/>
+        <text x="50" y="88" text-anchor="middle" font-size="10" fill="${c.text}">${tick%n===0&&tick>0?tick:tick%n}/${n}</text>
+      </svg>
+    </div>`;
+  });
+  h+=`</div>`;
+
+  // Timeline rows
+  h+=`<div class="tl-container">`;
+  nums.forEach((n,ni)=>{
+    let c=colors[ni%colors.length];
+    h+=`<div class="tl-row"><span class="tl-label" style="color:${c.border}">×${n}</span><div class="tl-cells">`;
+    for(let t=1;t<=lc;t++){
+      let isHit=t%n===0;
+      let isBoth=nums.every(nn=>t%nn===0);
+      let isActive=t<=tick;
+      let cellC=isBoth&&isActive?`background:#ccf7ef;border-color:#0d9488;color:#0f766e`:`background:${isHit&&isActive?c.bg:'#eef1f6'};border-color:${isHit&&isActive?c.border:'transparent'};color:${isHit&&isActive?c.text:'#94a3b8'}`;
+      h+=`<div class="tl-cell ${isActive&&isHit?'lit':''} ${isBoth&&isActive?'both':''}" style="${cellC}">${t}</div>`;
+    }
+    h+=`</div></div>`;
+  });
+  h+=`</div>`;
+
+  // Meet banner
+  let met=tick>=lc&&lc>0;
+  h+=`<div class="meet-banner ${met?'show teal':'teal'}" id="meet-banner">
+    ✦ พบกันอีกครั้งที่ <span style="font-size:22px;color:#101827">${lc}</span> หน่วย! &nbsp;→&nbsp; ค.ร.น.(${nums.join(',')}) = ${lc}
+  </div>`;
+
+  document.getElementById('clock-area').innerHTML=h;
+  let tl=document.getElementById('clock-tick-label');
+  if(tl)tl.textContent=`เวลา: ${tick} / ${lc}`;
+}
+
+function clockPlay(){
+  if(clockAnim.timer)return;
+  clockAnim.timer=setInterval(()=>{
+    clockAnim.tick++;
+    renderClockArea(clockAnim.nums,clockAnim.lcm,clockAnim.tick);
+    let tl=document.getElementById('clock-tick-label');
+    if(tl)tl.textContent=`เวลา: ${clockAnim.tick} / ${clockAnim.lcm}`;
+    if(clockAnim.tick>=clockAnim.lcm){
+      clearInterval(clockAnim.timer);clockAnim.timer=null;
+    }
+  },220);
+}
+
+function clockReset(){
+  if(clockAnim.timer){clearInterval(clockAnim.timer);clockAnim.timer=null}
+  clockAnim.tick=0;
+  renderClockArea(clockAnim.nums,clockAnim.lcm,0);
+}
+
+// ============================================================
+// ===== SECTION 15: TRICK LIBRARY & LIMITATIONS =====
+// ============================================================
+function render15(){
+  let h=`<div class="slabel u">⚡ ส่วนที่ 15 — คลังทริคคิดเร็ว & ข้อจำกัดที่ต้องรู้</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightning" style="color:#7c3aed"></i> ทริคคิดเร็ว (Speed Tricks)</h3>
+  </div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 1</span> <b>ตัวหนึ่งหารตัวอื่นลงตัว → ค.ร.น. คือตัวที่ใหญ่ที่สุด</b><br>
+    เช่น ค.ร.น.(4, 8) → 8÷4 ลงตัว ดังนั้น ค.ร.น. = 8 ทันที ไม่ต้องหารสั้น</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 2</span> <b>จำนวนเฉพาะร่วมกัน (Coprime) → ค.ร.น. = คูณกันตรงๆ</b><br>
+    เช่น ค.ร.น.(3, 5, 7) → ไม่มีตัวประกอบร่วม ดังนั้น ค.ร.น. = 3×5×7 = 105 ได้เลย</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 3</span> <b>สูตรลัดสำหรับ 2 จำนวน</b><br>
+    ค.ร.น.(a,b) = (a×b) ÷ ห.ร.ม.(a,b) — ถ้าหา ห.ร.ม. เร็ว จะได้ ค.ร.น. เร็วตาม</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 4</span> <b>เช็คเลขคู่/คี่ก่อนเสมอ</b><br>
+    ถ้ามีอย่างน้อย 1 ตัวเป็นเลขคี่ ค.ร.น. มักไม่ใช่แค่ตัวคูณของเลขคู่ตัวเดียว — ให้ระวังอย่ารีบตอบ</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 5</span> <b>โจทย์ "เหลือเศษเท่ากันทุกตัว"</b><br>
+    คำตอบ = ค.ร.น. + เศษ เสมอ (ไม่ใช่ ค.ร.น. − เศษ) ท่องจำให้ขึ้นใจ</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 6</span> <b>โจทย์ "ขาดเศษเท่ากันทุกตัว" (บางข้อยากจะสลับ)</b><br>
+    ถ้าโจทย์บอกว่า "ขาดอยู่ d หน่วยจึงจะครบ" ให้แปลงเป็น "เหลือเศษ = ตัวหาร − d" ก่อนใช้สูตร +เศษ</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-warning" style="color:#c2410c"></i> ข้อจำกัด & จุดที่พลาดบ่อย</h3>
+  </div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 1</span> <b>ค.ร.น. ≠ ห.ร.ม.</b> — ถ้าโจทย์พูดถึง "แบ่ง/ตัดให้ยาวที่สุด/จัดกลุ่มให้ใหญ่ที่สุด" มักเป็น ห.ร.ม. ไม่ใช่ ค.ร.น. ต้องอ่านคำถามให้ครบก่อนเริ่มทำ</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 2</span> <b>หารสั้นใช้ได้กับจำนวนนับเท่านั้น</b> — ไม่สามารถใช้กับเศษส่วนหรือทศนิยมได้โดยตรง ต้องแปลงเป็นจำนวนเต็มก่อน (เช่น หา ค.ร.น. ของตัวส่วน)</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 3</span> <b>ตัวหารต้องเป็นจำนวนเฉพาะเท่านั้น</b> ในการตั้งหารสั้น ห้ามใช้ 4, 6, 8, 9 เป็นตัวหาร เพราะจะทำให้แยกตัวประกอบไม่ครบ/ซ้ำ</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 4</span> <b>จำนวนที่หารไม่ลงตัวห้ามใส่ 0</b> — ต้อง "ทิ้งค่าเดิม" ลงมาในแถวถัดไป มิฉะนั้นคำตอบจะผิดทั้งหมด</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 5</span> <b>ค.ร.น. ของจำนวนที่มี 0 หรือจำนวนลบ</b> ไม่นิยาม / ไม่ใช้ในระดับนี้ — โจทย์จะใช้เฉพาะจำนวนนับ (1,2,3,...) เท่านั้น</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 6</span> <b>ระวังคำว่า "พร้อมกันอีกครั้ง" กับ "พร้อมกันครั้งที่ n"</b> — ครั้งแรกคือเวลาเริ่มต้น (นับเป็น 0 หรือครั้งที่ 1 ได้ทั้งคู่) ต้องอ่านให้ชัดว่าโจทย์นับครั้งเริ่มต้นรวมด้วยหรือไม่</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-check-circle" style="color:#15803d"></i> เช็คลิสต์ก่อนส่งคำตอบ</h3>
+    <ol style="margin-left:18px">
+      <li style="margin-bottom:6px">อ่านโจทย์ซ้ำ 1 รอบ — เป็น ค.ร.น. หรือ ห.ร.ม. กันแน่?</li>
+      <li style="margin-bottom:6px">แยกตัวประกอบ/ตั้งหารสั้นถูกต้องหรือไม่ (ใช้เฉพาะจำนวนเฉพาะ)</li>
+      <li style="margin-bottom:6px">ถ้ามีเศษ บวกเศษกลับเข้าไปในคำตอบสุดท้ายหรือยัง?</li>
+      <li style="margin-bottom:6px">ตรวจคำตอบด้วยการหารกลับ (คำตอบ ÷ ตัวเลขแต่ละตัว ต้องลงตัวหรือเหลือเศษตามโจทย์)</li>
+    </ol>
+  </div>`;
+
+  setDC(h);
+}
+
+// ============================================================
+// ===== SECTION 16: LCM × GCD = a × b RELATIONSHIP =====
+// ============================================================
+function render16(){
+  let h=`<div class="slabel c">⚖️ ส่วนที่ 16 — ความสัมพันธ์ ค.ร.น. × ห.ร.ม. = a × b</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-scales" style="color:#0891b2"></i> แนวคิด</h3>
+    <p>สำหรับจำนวนนับสองจำนวน <b style="color:#101827">a</b> และ <b style="color:#101827">b</b> เสมอมีความสัมพันธ์ที่สวยงามนี้อยู่เสมอ ไม่ว่าจะเลือกจำนวนใดก็ตาม:</p>
+    <div class="cpre">ค.ร.น.(a, b)  ×  ห.ร.ม.(a, b)  =  a × b</div>
+    <p>พูดง่ายๆ คือ ถ้าเรารู้ค่า 3 ใน 4 ตัว (ค.ร.น., ห.ร.ม., a, b) เราสามารถ<b style="color:#0e7490">หาตัวที่เหลือได้ทันที</b>โดยไม่ต้องแยกตัวประกอบใหม่เลย!</p>
+  </div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-book-open" style="color:#0891b2"></i> ตัวอย่างที่เข้าใจง่าย: a = 12, b = 18</h3>
+    <ol style="margin-left:18px">
+      <li style="margin-bottom:6px">แยกตัวประกอบ: 12 = 2² × 3 และ 18 = 2 × 3²</li>
+      <li style="margin-bottom:6px">ห.ร.ม.(12,18) = 2 × 3 = <b>6</b> (เลือกเลขชี้กำลัง<b style="color:#1d4ed8">ต่ำสุด</b>ของแต่ละตัวประกอบร่วม)</li>
+      <li style="margin-bottom:6px">ค.ร.น.(12,18) = 2² × 3² = <b>36</b> (เลือกเลขชี้กำลัง<b style="color:#0f766e">สูงสุด</b>ของทุกตัวประกอบ)</li>
+      <li style="margin-bottom:6px">ตรวจสอบ: ค.ร.น. × ห.ร.ม. = 36 × 6 = <b>216</b> และ a × b = 12 × 18 = <b>216</b> → <b style="color:#166534">เท่ากันพอดี! ✓</b></li>
+    </ol>
+  </div>`;
+
+  h+=`<div class="anim-wrap">
+    <div class="anim-title"><i class="ph-fill ph-sliders-horizontal"></i> ทดลองปรับตัวเลขเอง — ดูว่าจริงทุกกรณี</div>
+    <div class="slider-row">
+      <label>จำนวน a</label>
+      <input type="range" min="2" max="48" value="12" id="rel-a" oninput="updateRel()">
+      <span class="slider-val" id="rel-av">12</span>
+    </div>
+    <div class="slider-row">
+      <label>จำนวน b</label>
+      <input type="range" min="2" max="48" value="18" id="rel-b" oninput="updateRel()">
+      <span class="slider-val" id="rel-bv">18</span>
+    </div>
+    <div id="rel-output"></div>
+  </div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightbulb" style="color:#0891b2"></i> ประโยชน์ของสูตรนี้</h3>
+    <p>ใช้ตรวจคำตอบ ค.ร.น. หรือ ห.ร.ม. ได้อย่างรวดเร็ว และใช้หาตัวเลขที่ขาดไปได้เมื่อโจทย์ให้ค่า 3 ใน 4 ตัวมา เช่น</p>
+    <div class="cpre">โจทย์: ห.ร.ม.(a,b) = 12, ค.ร.น.(a,b) = 360, a = 72 → หา b
+วิธีคิด:  12 × 360 = 72 × b
+         4320 = 72b
+         b = 4320 ÷ 72 = 60</div>
+  </div>`;
+
+  h+=`<div class="limit-card">
+    <span class="tag">ข้อควรระวัง</span> สูตรนี้ใช้ได้กับ <b>จำนวนนับ 2 จำนวนเท่านั้น</b> — ถ้ามี 3 จำนวนขึ้นไป (เช่น a, b, c) สูตร ค.ร.น. × ห.ร.ม. = ผลคูณ <b>จะไม่เป็นจริงเสมอไป</b> ต้องตั้งหารสั้นตามปกติ
+  </div>`;
+
+  setDC(h);
+  setTimeout(updateRel,50);
+}
+
+function updateRel(){
+  let a=+document.getElementById('rel-a').value;
+  let b=+document.getElementById('rel-b').value;
+  document.getElementById('rel-av').textContent=a;
+  document.getElementById('rel-bv').textContent=b;
+  let g=gcd(a,b);
+  let l=lcm2(a,b);
+  let prod1=g*l;
+  let prod2=a*b;
+  let out=`
+    <div class="rel-eq-row">
+      <div class="rel-chip lcm"><div class="lbl">ค.ร.น.</div>${l}</div>
+      <div class="rel-chip op">×</div>
+      <div class="rel-chip gcd"><div class="lbl">ห.ร.ม.</div>${g}</div>
+      <div class="rel-chip op">=</div>
+      <div class="rel-chip prod"><div class="lbl">ผลคูณ</div>${prod1}</div>
+    </div>
+    <div class="rel-eq-row" style="margin-top:-6px">
+      <div class="rel-chip" style="background:#eef1f6;color:#38425c;border:2px solid #c3cce0"><div class="lbl">a</div>${a}</div>
+      <div class="rel-chip op">×</div>
+      <div class="rel-chip" style="background:#eef1f6;color:#38425c;border:2px solid #c3cce0"><div class="lbl">b</div>${b}</div>
+      <div class="rel-chip op">=</div>
+      <div class="rel-chip prod"><div class="lbl">ผลคูณ</div>${prod2}</div>
+    </div>
+    <div class="rel-check ok">✓ ${l} × ${g} = ${prod1} &nbsp;=&nbsp; ${a} × ${b} = ${prod2} &nbsp;→&nbsp; เท่ากันเสมอ ไม่ว่าจะเลือก a, b เป็นอะไรก็ตาม!</div>
+  `;
+  document.getElementById('rel-output').innerHTML=out;
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener('DOMContentLoaded',()=>{
+  let b=document.getElementById('default-btn');
+  if(b)loadConcept('sec11',b);
+});
+</script>
+</body>
+</html>
