@@ -1,1 +1,0 @@
-# gcd-master-academy
