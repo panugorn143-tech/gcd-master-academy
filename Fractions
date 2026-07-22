@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Fraction Master — เศษส่วน พร้อมแอนิเมชัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mali:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;font-family:'Mali',sans-serif}
+html,body{height:100%;overflow:hidden;background:#f5f7fb;color:#1a2233;font-size:15px}
+::-webkit-scrollbar{width:6px}::-webkit-scrollbar-thumb{background:#c3cce0;border-radius:10px}
+
+.navbar{background:#ffffff;border-bottom:2px solid #e2e8f5;padding:10px 16px;display:flex;align-items:center;gap:10px;flex-shrink:0;z-index:20}
+.nav-logo{background:linear-gradient(135deg,#0d9488,#0891b2);color:#fff;width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-title{font-weight:700;font-size:16px;color:#101827;line-height:1.3}
+.nav-sub{font-size:12px;color:#5c6b8a;display:none}
+@media(min-width:640px){.nav-sub{display:block}}
+.hamburger{margin-left:auto;background:#eef1fa;border:1px solid #dbe2f3;cursor:pointer;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#4a5578;flex-shrink:0}
+@media(min-width:768px){.hamburger{display:none}}
+
+.workspace{display:flex;height:calc(100vh - 57px);overflow:hidden;padding:10px;gap:10px}
+
+.sidebar{width:300px;min-width:300px;background:#ffffff;border-radius:12px;border:1px solid #e2e8f5;display:flex;flex-direction:column;overflow:hidden;transition:transform .3s ease;flex-shrink:0;box-shadow:0 1px 3px rgba(20,30,60,.06)}
+@media(min-width:1024px){.sidebar{width:340px;min-width:340px}}
+@media(max-width:767px){
+  .sidebar{position:fixed;top:0;left:0;width:100%!important;min-width:unset!important;height:100%;border-radius:0;z-index:100;transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+}
+.overlay{display:none;position:fixed;inset:0;background:rgba(20,30,50,.45);z-index:99}
+.overlay.open{display:block}
+.sidebar-header{padding:14px;border-bottom:1px solid #e2e8f5;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sidebar-header h2{font-size:15px;font-weight:700;color:#101827;display:flex;align-items:center;gap:8px}
+.close-btn{background:none;border:none;cursor:pointer;width:30px;height:30px;border-radius:6px;display:none;align-items:center;justify-content:center;color:#5c6b8a}
+@media(max-width:767px){.close-btn{display:flex}}
+.sidebar-body{padding:10px;overflow-y:auto;flex:1}
+.sec-label{font-size:10px;font-weight:700;color:#5c6b8a;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;margin-top:4px;display:flex;align-items:center;gap:6px}
+.sec-group{margin-bottom:16px}
+.mod-btn{width:100%;text-align:left;background:#f4f6fb;border:1px solid #e2e8f5;border-radius:10px;padding:11px 12px;cursor:pointer;display:flex;align-items:center;gap:10px;margin-bottom:6px;transition:border-color .15s,background .15s}
+.mod-btn:active{background:#eaeef7}
+.mod-btn.act-teal{background:#e6fbf8;border-color:#0d9488}
+.mod-btn.act-orange{background:#fff3e6;border-color:#ea580c}
+.mod-btn.act-pink{background:#fdeaf3;border-color:#db2777}
+.mod-btn.act-purple{background:#f1ecff;border-color:#7c3aed}
+.mod-btn.act-cyan{background:#e0f7fa;border-color:#0891b2}
+.mod-icon{font-size:18px;flex-shrink:0;width:22px;text-align:center}
+.mod-title{font-size:13px;font-weight:700;color:#101827}
+.mod-sub{font-size:11px;color:#5c6b8a;margin-top:1px}
+.badge{display:inline-block;font-size:10px;font-weight:600;border-radius:20px;padding:1px 7px;margin-top:2px}
+.bdg-t{background:#ccf7ef;color:#0f766e}.bdg-o{background:#ffe4c7;color:#c2410c}.bdg-p{background:#fbcfe8;color:#be185d}.bdg-u{background:#ded4fc;color:#5b21b6}.bdg-c{background:#cffafe;color:#0e7490}
+
+.content-pane{flex:1;background:#ffffff;border-radius:12px;border:1px solid #e2e8f5;display:flex;flex-direction:column;overflow:hidden;min-width:0;box-shadow:0 1px 3px rgba(20,30,60,.06)}
+.pane-header{background:#f9fafd;border-bottom:1px solid #e2e8f5;padding:10px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.pane-header span{font-size:13px;color:#5c6b8a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#dc{flex:1;overflow-y:auto;padding:16px;color:#1a2233}
+@media(min-width:640px){#dc{padding:20px}}
+
+.pbox{max-width:760px;margin:0 auto}
+.slabel{border-left:4px solid;padding:11px 16px;border-radius:0 9px 9px 0;margin-bottom:14px;font-size:15px;font-weight:700}
+.slabel.t{border-color:#0d9488;background:#e6fbf8;color:#0f766e}
+.slabel.o{border-color:#ea580c;background:#fff3e6;color:#c2410c}
+.slabel.p{border-color:#db2777;background:#fdeaf3;color:#be185d}
+.slabel.u{border-color:#7c3aed;background:#f1ecff;color:#5b21b6}
+.slabel.c{border-color:#0891b2;background:#e0f7fa;color:#0e7490}
+.ans-box{background:#f4f6fb;border:1px solid #c3cce0;border-radius:10px;padding:16px;text-align:center;margin-top:10px}
+.ans-box p{font-size:21px;font-weight:700;color:#101827;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}
+.nav-btns{display:flex;gap:9px;margin-top:16px;flex-wrap:wrap}
+.btn-p,.btn-n{border:none;border-radius:9px;padding:9px 18px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:'Mali',sans-serif}
+.btn-p{background:#eef1fa;color:#2c3550;border:1px solid #dbe2f3}.btn-n{background:#0d9488;color:#fff}
+.btn-p:active{background:#dde3f2}.btn-n:active{background:#0f766e}
+.sel-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-top:12px}
+@media(min-width:480px){.sel-grid{grid-template-columns:repeat(4,1fr)}}
+@media(min-width:640px){.sel-grid{grid-template-columns:repeat(5,1fr)}}
+.sel-btn{padding:9px 4px;border:none;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Mali',sans-serif}
+.sel-btn:active{transform:scale(.95)}
+.sbt{background:#0d9488;color:#fff}.sbo{background:#ea580c;color:#fff}.sbp{background:#db2777;color:#fff}.sbu{background:#7c3aed;color:#fff}
+
+.ccard{background:#ffffff;border:1px solid #e2e8f5;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(20,30,60,.04)}
+.ccard h3{font-size:15px;font-weight:700;margin-bottom:10px;color:#101827;display:flex;align-items:center;gap:8px}
+.ccard p,.ccard li{font-size:14px;color:#38425c;line-height:2}
+.ccard ol,.ccard ul{padding-left:18px}
+.cpre{background:#0f172a;border-radius:8px;padding:11px;font-family:monospace;font-size:12px;color:#5eead4;margin-top:10px;line-height:1.9;border:1px solid #1f2937}
+
+.fi{animation:fi .35s ease forwards}
+@keyframes fi{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+/* ===== ANIMATION GLOBALS ===== */
+.anim-wrap{background:#f9fafd;border:1px solid #e2e8f5;border-radius:12px;padding:16px;margin-bottom:12px}
+.anim-title{font-size:14px;font-weight:700;color:#2c3550;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.slider-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.slider-row label{font-size:14px;color:#38425c;font-weight:600;min-width:110px}
+.slider-row input[type=range]{flex:1;min-width:100px;accent-color:#0d9488;cursor:pointer}
+.slider-val{font-size:17px;font-weight:700;color:#0f766e;min-width:32px;text-align:center;background:#e6fbf8;border-radius:7px;padding:3px 10px;border:1px solid #99e6da}
+
+.ctrl-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.ctrl-bar button{border:none;border-radius:8px;padding:8px 16px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Mali',sans-serif;display:flex;align-items:center;gap:5px}
+.btn-next{background:#0d9488;color:#fff}.btn-next:hover{background:#0f766e}
+.btn-reset{background:#eef1fa;color:#2c3550;border:1px solid #dbe2f3}.btn-reset:hover{background:#dde3f2}
+.btn-auto{background:#4338ca;color:#fff}.btn-auto:hover{background:#3730a3}
+.step-info{font-size:13px;color:#5c6b8a;margin-left:4px}
+
+.sol-step{background:#f9fafd;border:1px solid #dbe2f3;border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:14.5px;line-height:1.9}
+.sol-step .num{display:inline-flex;width:22px;height:22px;border-radius:50%;background:#0d9488;color:#fff;align-items:center;justify-content:center;font-size:12px;font-weight:700;margin-right:8px;flex-shrink:0;vertical-align:middle}
+#sol-steps .sol-step{opacity:0;animation:fi .35s ease forwards}
+.limit-card{background:#fff7ed;border:1px solid #fdba74;border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:14px;color:#7c2d12;line-height:1.8}
+.limit-card .tag{background:#c2410c;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px;margin-right:6px}
+.trickfast{background:#f1ecff;border:1px solid #c4b5fd;border-radius:10px;padding:12px 14px;margin-bottom:8px;font-size:14px;color:#4c1d95;line-height:1.8}
+.trickfast .tag{background:#6d28d9;color:#fff;font-size:10px;font-weight:700;border-radius:5px;padding:1px 7px;margin-right:6px}
+
+/* ===== PROFESSIONAL FRACTION DISPLAY (no slash, no LaTeX) ===== */
+.frac{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;vertical-align:middle;margin:0 3px;line-height:1.15;font-weight:700}
+.frac .fnum{padding:0 5px 3px;border-bottom:2.2px solid currentColor}
+.frac .fden{padding:3px 5px 0}
+.mixed-num{display:inline-flex;align-items:center;gap:2px;font-weight:700}
+.neg-sign{margin-right:2px}
+.expr-display{font-size:20px;text-align:center;padding:16px;background:#f9fafd;border:1px solid #dbe2f3;border-radius:10px;margin-bottom:10px;line-height:1.6}
+.op-symbol{margin:0 6px;color:#5c6b8a;font-weight:700}
+.paren{color:#0891b2;font-weight:700;margin:0 1px}
+
+/* ===== BAR MODEL VISUAL ===== */
+.bar-row{margin-bottom:12px}
+.bar-lbl{font-size:13px;color:#5c6b8a;margin-bottom:5px;font-weight:700;display:flex;align-items:center;gap:6px}
+.bar-model{display:flex;border:2.5px solid #334155;border-radius:8px;overflow:hidden;height:40px}
+.bar-seg{flex:1;border-right:1px solid rgba(255,255,255,.6);transition:background .3s}
+.bar-seg:last-child{border-right:none}
+.bar-seg.empty{background:#eef1f6}
+
+/* ===== EXAMPLE BLOCK ===== */
+.example-tag{display:inline-block;background:#0d9488;color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:3px 10px;margin-bottom:8px}
+.method-tag{display:inline-block;font-size:10px;font-weight:700;border-radius:20px;padding:2px 9px;margin-left:6px}
+.mtag-1{background:#dbeafe;color:#1d4ed8}
+.mtag-2{background:#fce7f3;color:#be185d}
+
+/* scrollbar for mobile */
+.sidebar-body::-webkit-scrollbar{width:5px}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="nav-logo"><i class="ph-bold ph-chalkboard-teacher" style="font-size:18px"></i></div>
+  <div>
+    <div class="nav-title">Teacher Workspace — Fraction Master</div>
+    <div class="nav-sub">หน่วยที่ 2 เศษส่วน · การบวกและการลบ · พร้อมแอนิเมชัน</div>
+  </div>
+  <button class="hamburger" onclick="toggleSidebar()"><i class="ph-bold ph-list" style="font-size:20px"></i></button>
+</nav>
+
+<div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+<div class="workspace">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <h2><i class="ph-fill ph-list-dashes" style="color:#0d9488;font-size:18px"></i> หัวข้อการสอน</h2>
+      <button class="close-btn" onclick="toggleSidebar()"><i class="ph-bold ph-x" style="font-size:17px"></i></button>
+    </div>
+    <div class="sidebar-body">
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-divide" style="color:#0d9488"></i> ส่วนที่ 1 — บวก/ลบเศษส่วน (ตัวส่วนต่างกัน)</div>
+        <button class="mod-btn act-teal" id="default-btn" onclick="loadConceptF('f1',this)">
+          <i class="ph-duotone ph-presentation-chart mod-icon" style="color:#0d9488"></i>
+          <div><div class="mod-title" style="color:#0f766e">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">โมเดลแท่งเศษส่วน · ตัวอย่าง 1-4</div></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f1_in','frac2',this,'teal','แบบฝึกหัด 2.1 (ในชั้นเรียน)')">
+          <i class="ph-duotone ph-notebook mod-icon" style="color:#0d9488"></i>
+          <div><div class="mod-title">แบบฝึกหัด 2.1 (ในชั้นเรียน)</div><span class="badge bdg-t">8 ข้อ</span></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f1_hw','frac2',this,'teal','การบ้าน 2.1')">
+          <i class="ph-duotone ph-house-line mod-icon" style="color:#0d9488"></i>
+          <div><div class="mod-title">การบ้าน 2.1</div><span class="badge bdg-t">20 ข้อ</span></div>
+        </button>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-arrows-merge" style="color:#ea580c"></i> ส่วนที่ 2 — จำนวนคละ วิธีที่ 1 (เศษเกิน)</div>
+        <button class="mod-btn" onclick="loadConceptF('f2',this)">
+          <i class="ph-duotone ph-book-open mod-icon" style="color:#ea580c"></i>
+          <div><div class="mod-title">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">แปลงจำนวนคละเป็นเศษเกิน</div></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f2_add_in','mixed1add',this,'orange','แบบฝึกหัด 2.2 (บวก · เศษเกิน)')">
+          <i class="ph-duotone ph-notebook mod-icon" style="color:#ea580c"></i>
+          <div><div class="mod-title">แบบฝึกหัด 2.2 ข้อ 1 (บวก)</div><span class="badge bdg-o">6 ข้อ</span></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f2_add_hw','mixed1add',this,'orange','การบ้าน (บวก · เศษเกิน)')">
+          <i class="ph-duotone ph-house-line mod-icon" style="color:#ea580c"></i>
+          <div><div class="mod-title">การบ้าน (บวก)</div><span class="badge bdg-o">10 ข้อ</span></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f2_sub_hw','mixed1sub',this,'orange','การบ้าน 3 (ลบ · เศษเกิน)')">
+          <i class="ph-duotone ph-house-line mod-icon" style="color:#ea580c"></i>
+          <div><div class="mod-title">การบ้าน 3 (ลบ)</div><span class="badge bdg-o">10 ข้อ</span></div>
+        </button>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-arrows-split" style="color:#db2777"></i> ส่วนที่ 3 — จำนวนคละ วิธีที่ 2 (แยกจำนวนเต็ม)</div>
+        <button class="mod-btn" onclick="loadConceptF('f3',this)">
+          <i class="ph-duotone ph-book-open mod-icon" style="color:#db2777"></i>
+          <div><div class="mod-title">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">แยกจำนวนเต็ม-เศษส่วน · การยืม</div></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f3_add_in','mixed2add',this,'pink','แบบฝึกหัด 2.2 ข้อ 2 (บวก)')">
+          <i class="ph-duotone ph-notebook mod-icon" style="color:#db2777"></i>
+          <div><div class="mod-title">แบบฝึกหัด 2.2 ข้อ 2 (บวก)</div><span class="badge bdg-p">4 ข้อ</span></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f3_sub_in','mixed2sub',this,'pink','แบบฝึกหัด 2.2 ข้อ 4 (ลบ)')">
+          <i class="ph-duotone ph-notebook mod-icon" style="color:#db2777"></i>
+          <div><div class="mod-title">แบบฝึกหัด 2.2 ข้อ 4 (ลบ)</div><span class="badge bdg-p">4 ข้อ</span></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f3_sub_hw','mixed2sub',this,'pink','การบ้าน 4 (ลบ · แยกจำนวนเต็ม)')">
+          <i class="ph-duotone ph-house-line mod-icon" style="color:#db2777"></i>
+          <div><div class="mod-title">การบ้าน 4 (ลบ)</div><span class="badge bdg-p">10 ข้อ</span></div>
+        </button>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-brackets-curly" style="color:#7c3aed"></i> ส่วนที่ 4 — โจทย์ผสม (มีวงเล็บ)</div>
+        <button class="mod-btn" onclick="loadConceptF('f4',this)">
+          <i class="ph-duotone ph-book-open mod-icon" style="color:#7c3aed"></i>
+          <div><div class="mod-title">🎬 บทเรียน + แอนิเมชัน</div><div class="mod-sub">ลำดับการคำนวณ · ตัวอย่าง 9-10</div></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f4_in','bracket',this,'purple','แบบฝึกหัด (ในชั้นเรียน)')">
+          <i class="ph-duotone ph-notebook mod-icon" style="color:#7c3aed"></i>
+          <div><div class="mod-title">แบบฝึกหัด (ในชั้นเรียน)</div><span class="badge bdg-u">4 ข้อ</span></div>
+        </button>
+        <button class="mod-btn" onclick="renderSelF('f4_hw','bracket',this,'purple','การบ้าน (โจทย์ผสม)')">
+          <i class="ph-duotone ph-house-line mod-icon" style="color:#7c3aed"></i>
+          <div><div class="mod-title">การบ้าน</div><span class="badge bdg-u">8 ข้อ</span></div>
+        </button>
+      </div>
+
+      <div class="sec-group">
+        <div class="sec-label"><i class="ph-fill ph-lightning" style="color:#0891b2"></i> ส่วนที่ 5 — คลังทริค & ข้อควรระวัง</div>
+        <button class="mod-btn" onclick="loadConceptF('f5',this)">
+          <i class="ph-duotone ph-brain mod-icon" style="color:#0891b2"></i>
+          <div><div class="mod-title">🎬 คลังทริค + ข้อควรระวัง</div><div class="mod-sub">เทคนิคลัด · จุดที่พลาดบ่อย</div></div>
+        </button>
+      </div>
+    </div>
+  </aside>
+
+  <section class="content-pane">
+    <div class="pane-header">
+      <i class="ph ph-chalkboard" style="color:#5c6b8a;font-size:15px"></i>
+      <span id="wtitle">กระดานสอน</span>
+    </div>
+    <div id="dc"></div>
+  </section>
+</div>
+
+<script>
+// ============================================================
+// CORE UTILS
+// ============================================================
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('overlay').classList.toggle('open');
+}
+function setTitle(t){document.getElementById('wtitle').textContent=t}
+function setDC(html){document.getElementById('dc').innerHTML=`<div class="pbox fi">${html}</div>`}
+function gcd(a,b){a=Math.abs(a);b=Math.abs(b);return b?gcd(b,a%b):a}
+function lcmOf(a,b){return a/gcd(a,b)*b}
+function reduceF(n,d){if(d<0){n=-n;d=-d;}let g=gcd(n,d)||1;return{n:n/g,d:d/g};}
+
+function setActive(btn){
+  document.querySelectorAll('.mod-btn').forEach(b=>b.classList.remove('act-teal','act-orange','act-pink','act-purple','act-cyan'));
+  const colorClass={orange:'act-orange',pink:'act-pink',purple:'act-purple',cyan:'act-cyan'}[btn._color]||'act-teal';
+  btn.classList.add(colorClass);
+}
+
+// ============================================================
+// PROFESSIONAL FRACTION RENDERING (no "/" , no LaTeX)
+// ============================================================
+function fracHTML(n,d){
+  if(d===1) return `${n}`;
+  let neg = n<0;
+  let an=Math.abs(n);
+  return `${neg?'<span class="neg-sign">−</span>':''}<span class="frac"><span class="fnum">${an}</span><span class="fden">${d}</span></span>`;
+}
+function mixedHTML(w,n,d){
+  if(n===0) return `${w}`;
+  if(w===0) return fracHTML(n,d);
+  let neg = w<0;
+  return `${neg?'<span class="neg-sign">−</span>':''}<span class="mixed-num">${Math.abs(w)}${fracHTML(Math.abs(n),d)}</span>`;
+}
+function finalAnswerHTML(n,d){
+  let red=reduceF(n,d);
+  if(Math.abs(red.n)>=red.d && red.d!==1){
+    let neg=red.n<0, an=Math.abs(red.n);
+    let w=Math.floor(an/red.d), r=an-w*red.d;
+    return mixedHTML(neg?-w:w, r, red.d);
+  }
+  return fracHTML(red.n,red.d);
+}
+
+// ============================================================
+// FRACTION ARITHMETIC ENGINE (generates step-by-step explanations)
+// ============================================================
+function combineStep(op,f1,f2){
+  let steps=[];
+  let lcd=lcmOf(f1.d,f2.d);
+  if(f1.d!==f2.d){
+    steps.push(`หา ค.ร.น. ของตัวส่วน ${f1.d} และ ${f2.d} &nbsp;→&nbsp; ค.ร.น. = ${lcd}`);
+  }
+  let m1=lcd/f1.d, m2=lcd/f2.d;
+  let a=f1.n*m1, b=f2.n*m2;
+  if(m1!==1||m2!==1){
+    steps.push(`ทำส่วนให้เท่ากัน: ${fracHTML(f1.n,f1.d)} = ${fracHTML(a,lcd)} &nbsp;และ&nbsp; ${fracHTML(f2.n,f2.d)} = ${fracHTML(b,lcd)}`);
+  }
+  let raw = op==='add'? a+b : a-b;
+  steps.push(`${op==='add'?'บวก':'ลบ'}ตัวเศษ: ${fracHTML(a,lcd)} ${op==='add'?'+':'−'} ${fracHTML(b,lcd)} = ${fracHTML(raw,lcd)}`);
+  let red=reduceF(raw,lcd);
+  if(red.d!==lcd || red.n!==raw){
+    steps.push(`ทำให้เป็นเศษส่วนอย่างง่าย: ${fracHTML(raw,lcd)} = ${fracHTML(red.n,red.d)}`);
+  }
+  if(Math.abs(red.n)>=red.d && red.d!==1){
+    let neg=red.n<0, an=Math.abs(red.n);
+    let w=Math.floor(an/red.d), r=an-w*red.d;
+    steps.push(`แปลงเป็นจำนวนคละ: ${fracHTML(red.n,red.d)} = ${mixedHTML(neg?-w:w,r,red.d)}`);
+  }
+  return {steps, result:red};
+}
+
+// ---- Mixed numbers, Method 1: convert to improper fraction first ----
+function buildMethod1(op,w1,n1,d1,w2,n2,d2){
+  let i1=w1*d1+n1, i2=w2*d2+n2;
+  let steps=[`แปลงจำนวนคละเป็นเศษเกิน: ${mixedHTML(w1,n1,d1)} = ${fracHTML(i1,d1)} &nbsp;และ&nbsp; ${mixedHTML(w2,n2,d2)} = ${fracHTML(i2,d2)}`];
+  let c=combineStep(op,{n:i1,d:d1},{n:i2,d:d2});
+  steps=steps.concat(c.steps);
+  return {steps, result:c.result};
+}
+
+// ---- Mixed numbers, Method 2: separate whole & fraction (addition) ----
+function buildMethod2Add(w1,n1,d1,w2,n2,d2){
+  let steps=[`แยกจำนวนเต็มและเศษส่วน: ${mixedHTML(w1,n1,d1)} = ${w1} + ${fracHTML(n1,d1)} &nbsp;&nbsp;และ&nbsp;&nbsp; ${mixedHTML(w2,n2,d2)} = ${w2} + ${fracHTML(n2,d2)}`];
+  steps.push(`บวกจำนวนเต็ม: ${w1} + ${w2} = ${w1+w2}`);
+  let lcd=lcmOf(d1,d2);
+  if(d1!==d2) steps.push(`หา ค.ร.น. ของตัวส่วน ${d1} และ ${d2} &nbsp;→&nbsp; ค.ร.น. = ${lcd}`);
+  let a=n1*(lcd/d1), b=n2*(lcd/d2);
+  steps.push(`บวกเศษส่วน: ${fracHTML(a,lcd)} + ${fracHTML(b,lcd)} = ${fracHTML(a+b,lcd)}`);
+  let wholeSum=w1+w2, fn=a+b, fd=lcd;
+  if(fn>=fd){
+    let ew=Math.floor(fn/fd), rem=fn-ew*fd;
+    steps.push(`เนื่องจากผลบวกเศษส่วนเป็นเศษเกิน (${fracHTML(fn,fd)}) → แปลงเป็นจำนวนคละ = ${mixedHTML(ew,rem,fd)} แล้วนำจำนวนเต็ม ${ew} ไปรวมกับผลบวกจำนวนเต็ม`);
+    wholeSum+=ew; fn=rem;
+  }
+  let red=reduceF(fn,fd);
+  if(fn!==0 && (red.n!==fn||red.d!==fd)){
+    steps.push(`ทำให้เป็นเศษส่วนอย่างง่าย: ${fracHTML(fn,fd)} = ${fracHTML(red.n,red.d)}`);
+  }
+  steps.push(`รวมคำตอบ: ${wholeSum} + ${fracHTML(red.n,red.d)} = ${mixedHTML(wholeSum,red.n,red.d)}`);
+  return {steps, result:{n:wholeSum*red.d+red.n, d:red.d}};
+}
+
+// ---- Mixed numbers, Method 2: separate whole & fraction (subtraction, with borrowing) ----
+function buildMethod2Sub(w1,n1,d1,w2,n2,d2){
+  let steps=[`แยกจำนวนเต็มและเศษส่วน: ${mixedHTML(w1,n1,d1)} = ${w1} + ${fracHTML(n1,d1)} &nbsp;&nbsp;และ&nbsp;&nbsp; ${mixedHTML(w2,n2,d2)} = ${w2} + ${fracHTML(n2,d2)}`];
+  let lcd=lcmOf(d1,d2);
+  if(d1!==d2) steps.push(`หา ค.ร.น. ของตัวส่วน ${d1} และ ${d2} &nbsp;→&nbsp; ค.ร.น. = ${lcd}`);
+  let a=n1*(lcd/d1), b=n2*(lcd/d2);
+  let ww1=w1;
+  if(a<b){
+    steps.push(`เนื่องจาก ${fracHTML(a,lcd)} น้อยกว่า ${fracHTML(b,lcd)} → <b>ยืม 1</b> จากจำนวนเต็ม ${w1} มาเป็น ${fracHTML(lcd,lcd)} แล้วรวมกับเศษเดิม`);
+    ww1=w1-1; a=a+lcd;
+    steps.push(`ได้เศษส่วนใหม่: ${fracHTML(lcd,lcd)} + ${fracHTML(n1*(lcd/d1),lcd)} = ${fracHTML(a,lcd)} &nbsp;และจำนวนเต็มเหลือ ${ww1}`);
+  }
+  steps.push(`ลบจำนวนเต็ม: ${ww1} − ${w2} = ${ww1-w2}`);
+  steps.push(`ลบเศษส่วน: ${fracHTML(a,lcd)} − ${fracHTML(b,lcd)} = ${fracHTML(a-b,lcd)}`);
+  let red=reduceF(a-b,lcd);
+  if(red.n!==(a-b)||red.d!==lcd){
+    steps.push(`ทำให้เป็นเศษส่วนอย่างง่าย: ${fracHTML(a-b,lcd)} = ${fracHTML(red.n,red.d)}`);
+  }
+  let wholeFinal=ww1-w2;
+  steps.push(`รวมคำตอบ: ${wholeFinal} + ${fracHTML(red.n,red.d)} = ${mixedHTML(wholeFinal,red.n,red.d)}`);
+  return {steps, result:{n:wholeFinal*red.d+red.n, d:red.d}};
+}
+
+// ---- Bracketed / mixed operation expression tree ----
+function N(w,n,d){return {type:'num',w,n,d};}
+function OP(op,left,right){return {type:'op',op,left,right};}
+
+function exprToHTML(node){
+  if(node.type==='num'){
+    return node.w? mixedHTML(node.w,node.n,node.d) : fracHTML(node.n,node.d);
+  }
+  let ls = node.left.type==='op' ? `<span class="paren">(</span>${exprToHTML(node.left)}<span class="paren">)</span>` : exprToHTML(node.left);
+  let rs = node.right.type==='op' ? `<span class="paren">(</span>${exprToHTML(node.right)}<span class="paren">)</span>` : exprToHTML(node.right);
+  let opSym = node.op==='add' ? '+' : '−';
+  return `${ls} <span class="op-symbol">${opSym}</span> ${rs}`;
+}
+
+function evalExprSteps(node,steps){
+  if(node.type==='num'){
+    return {n:(node.w||0)*node.d+node.n, d:node.d, isMixedLeaf: !!(node.w&&node.w!==0), w:node.w||0, origN:node.n, origD:node.d};
+  }
+  let L=evalExprSteps(node.left,steps);
+  if(node.left.type==='num' && L.isMixedLeaf){
+    steps.push(`แปลงจำนวนคละเป็นเศษเกิน: ${mixedHTML(L.w,L.origN,L.origD)} = ${fracHTML(L.n,L.d)}`);
+  }
+  let R=evalExprSteps(node.right,steps);
+  if(node.right.type==='num' && R.isMixedLeaf){
+    steps.push(`แปลงจำนวนคละเป็นเศษเกิน: ${mixedHTML(R.w,R.origN,R.origD)} = ${fracHTML(R.n,R.d)}`);
+  }
+  steps.push(`<b style="color:#0891b2">คำนวณ${node===arguments[2]?'':''}: ${fracHTML(L.n,L.d)} ${node.op==='add'?'+':'−'} ${fracHTML(R.n,R.d)}</b>`);
+  let c=combineStep(node.op,{n:L.n,d:L.d},{n:R.n,d:R.d});
+  c.steps.forEach(s=>steps.push(s));
+  return {n:c.result.n, d:c.result.d, isMixedLeaf:false};
+}
+
+// ============================================================
+// DATA: every problem from the worksheet — 100% coverage (84 items)
+// ============================================================
+const DB={
+  // ===== SECTION 1: pure fraction add/sub (kind: frac2) =====
+  f1_in:[ // แบบฝึกหัด 2.1 ในชั้นเรียน (8 ข้อ)
+    {n1:4,d1:10,op:'add',n2:7,d2:10},
+    {n1:5,d1:8,op:'add',n2:5,d2:6},
+    {n1:3,d1:8,op:'add',n2:5,d2:12},
+    {n1:5,d1:9,op:'add',n2:7,d2:4},
+    {n1:3,d1:4,op:'sub',n2:3,d2:10},
+    {n1:5,d1:6,op:'sub',n2:2,d2:9},
+    {n1:7,d1:8,op:'sub',n2:1,d2:6},
+    {n1:8,d1:9,op:'sub',n2:5,d2:8},
+  ],
+  f1_hw:[ // การบ้าน 2.1 (20 ข้อ)
+    {n1:7,d1:12,op:'add',n2:3,d2:8},
+    {n1:4,d1:5,op:'add',n2:5,d2:6},
+    {n1:3,d1:4,op:'add',n2:9,d2:10},
+    {n1:8,d1:3,op:'add',n2:7,d2:4},
+    {n1:5,d1:6,op:'add',n2:11,d2:9},
+    {n1:5,d1:4,op:'add',n2:13,d2:6},
+    {n1:16,d1:21,op:'add',n2:9,d2:14},
+    {n1:4,d1:15,op:'add',n2:8,d2:9},
+    {n1:13,d1:12,op:'add',n2:7,d2:8},
+    {n1:14,d1:9,op:'add',n2:5,d2:6},
+    {n1:7,d1:4,op:'sub',n2:5,d2:6},
+    {n1:5,d1:8,op:'sub',n2:5,d2:12},
+    {n1:11,d1:6,op:'sub',n2:3,d2:8},
+    {n1:6,d1:7,op:'sub',n2:5,d2:14},
+    {n1:13,d1:15,op:'sub',n2:2,d2:5},
+    {n1:7,d1:10,op:'sub',n2:2,d2:5},
+    {n1:5,d1:8,op:'sub',n2:4,d2:9},
+    {n1:13,d1:9,op:'sub',n2:5,d2:6},
+    {n1:19,d1:15,op:'sub',n2:7,d2:9},
+    {n1:12,d1:5,op:'sub',n2:5,d2:6},
+  ],
+  // ===== SECTION 2: mixed numbers, method 1 (improper fraction) =====
+  f2_add_in:[ // แบบฝึกหัด 2.2 ข้อ 1.1-1.6 (6 ข้อ)
+    {w1:1,n1:3,d1:4,w2:2,n2:1,d2:6},
+    {w1:2,n1:3,d1:5,w2:3,n2:1,d2:10},
+    {w1:2,n1:5,d1:9,w2:1,n2:5,d2:6},
+    {w1:3,n1:7,d1:8,w2:2,n2:8,d2:9},
+    {w1:2,n1:4,d1:7,w2:4,n2:5,d2:8},
+    {w1:3,n1:3,d1:8,w2:4,n2:5,d2:12},
+  ],
+  f2_add_hw:[ // การบ้าน (บวก, เศษเกิน) 10 ข้อ
+    {w1:5,n1:1,d1:8,w2:6,n2:3,d2:5},
+    {w1:6,n1:7,d1:8,w2:8,n2:2,d2:9},
+    {w1:8,n1:6,d1:7,w2:10,n2:5,d2:6},
+    {w1:10,n1:1,d1:6,w2:5,n2:13,d2:15},
+    {w1:14,n1:3,d1:10,w2:8,n2:8,d2:15},
+    {w1:4,n1:7,d1:10,w2:7,n2:3,d2:8},
+    {w1:7,n1:5,d1:9,w2:9,n2:11,d2:12},
+    {w1:9,n1:5,d1:6,w2:11,n2:1,d2:8},
+    {w1:12,n1:7,d1:18,w2:7,n2:11,d2:12},
+    {w1:15,n1:5,d1:9,w2:9,n2:7,d2:12},
+  ],
+  f2_sub_hw:[ // การบ้าน 3 (ลบ, เศษเกิน) 10 ข้อ
+    {w1:8,n1:5,d1:8,w2:6,n2:2,d2:9},
+    {w1:9,n1:7,d1:8,w2:4,n2:2,d2:5},
+    {w1:12,n1:17,d1:18,w2:9,n2:5,d2:12},
+    {w1:14,n1:5,d1:6,w2:8,n2:7,d2:15},
+    {w1:16,n1:3,d1:8,w2:7,n2:11,d2:12},
+    {w1:10,n1:6,d1:7,w2:7,n2:1,d2:6},
+    {w1:11,n1:5,d1:6,w2:7,n2:5,d2:8},
+    {w1:13,n1:4,d1:9,w2:5,n2:5,d2:12},
+    {w1:15,n1:3,d1:10,w2:9,n2:4,d2:15},
+    {w1:18,n1:3,d1:16,w2:11,n2:17,d2:24},
+  ],
+  // ===== SECTION 3: mixed numbers, method 2 (separate whole/fraction) =====
+  f3_add_in:[ // แบบฝึกหัด 2.2 ข้อ 2.1-2.4 (4 ข้อ)
+    {w1:2,n1:3,d1:5,w2:2,n2:7,d2:10},
+    {w1:2,n1:3,d1:8,w2:3,n2:5,d2:6},
+    {w1:3,n1:2,d1:9,w2:4,n2:5,d2:8},
+    {w1:3,n1:3,d1:5,w2:5,n2:1,d2:6},
+  ],
+  f3_sub_in:[ // แบบฝึกหัด 2.2 ข้อ 4.1-4.4 (4 ข้อ)
+    {w1:8,n1:5,d1:6,w2:4,n2:3,d2:8},
+    {w1:9,n1:7,d1:8,w2:5,n2:5,d2:12},
+    {w1:18,n1:4,d1:15,w2:12,n2:11,d2:12},
+    {w1:20,n1:3,d1:8,w2:12,n2:11,d2:12},
+  ],
+  f3_sub_hw:[ // การบ้าน 4 (ลบ, แยกจำนวนเต็ม) 10 ข้อ
+    {w1:10,n1:9,d1:10,w2:4,n2:7,d2:15},
+    {w1:12,n1:11,d1:12,w2:7,n2:5,d2:9},
+    {w1:13,n1:7,d1:8,w2:8,n2:5,d2:12},
+    {w1:14,n1:14,d1:15,w2:7,n2:5,d2:9},
+    {w1:16,n1:17,d1:20,w2:8,n2:5,d2:8},
+    {w1:11,n1:4,d1:5,w2:6,n2:5,d2:9},
+    {w1:11,n1:4,d1:7,w2:5,n2:1,d2:6},
+    {w1:12,n1:9,d1:10,w2:4,n2:4,d2:15},
+    {w1:15,n1:13,d1:16,w2:6,n2:7,d2:24},
+    {w1:17,n1:7,d1:18,w2:12,n2:25,d2:27},
+  ],
+  // ===== SECTION 4: bracketed mixed-operation expressions =====
+  f4_in:[ // แบบฝึกหัด ในชั้นเรียน (4 ข้อ)
+    OP('add', N(0,7,9), OP('sub', N(0,3,5), N(0,2,45))),
+    OP('sub', OP('add', N(0,4,9), N(0,5,6)), N(0,7,12)),
+    OP('sub', N(10,1,2), OP('sub', N(7,1,4), N(2,7,20))),
+    OP('add', OP('sub', N(6,2,5), N(4,1,2)), N(1,3,4)),
+  ],
+  f4_hw:[ // การบ้าน (8 ข้อ)
+    OP('sub', N(0,2,7), OP('sub', N(0,1,2), N(0,11,28))),
+    OP('add', OP('sub', N(0,5,9), N(0,7,12)), N(0,4,9)),
+    OP('sub', N(0,5,6), OP('add', N(0,2,5), N(0,1,6))),
+    OP('sub', N(0,4,5), OP('sub', N(0,1,10), N(0,1,3))),
+    OP('add', N(5,1,6), OP('sub', N(4,1,3), N(1,1,2))),
+    OP('sub', N(3,2,11), OP('sub', N(2,5,7), N(1,6,11))),
+    OP('add', OP('sub', N(4,2,5), N(1,1,3)), N(1,14,15)),
+    OP('sub', OP('sub', N(5,2,11), N(2,5,8)), N(1,4,9)),
+  ],
+};
+
+// ============================================================
+// SOLVE any item, regardless of kind → {qHTML, steps, answerHTML}
+// ============================================================
+function solveItem(kind,item){
+  if(kind==='frac2'){
+    let c=combineStep(item.op,{n:item.n1,d:item.d1},{n:item.n2,d:item.d2});
+    let qHTML=`${fracHTML(item.n1,item.d1)} <span class="op-symbol">${item.op==='add'?'+':'−'}</span> ${fracHTML(item.n2,item.d2)}`;
+    return {qHTML, steps:c.steps, answerHTML: finalAnswerHTML(c.result.n,c.result.d)};
+  }
+  if(kind==='mixed1add'||kind==='mixed1sub'){
+    let op = kind==='mixed1add'?'add':'sub';
+    let r=buildMethod1(op,item.w1,item.n1,item.d1,item.w2,item.n2,item.d2);
+    let qHTML=`${mixedHTML(item.w1,item.n1,item.d1)} <span class="op-symbol">${op==='add'?'+':'−'}</span> ${mixedHTML(item.w2,item.n2,item.d2)}`;
+    return {qHTML, steps:r.steps, answerHTML: finalAnswerHTML(r.result.n,r.result.d)};
+  }
+  if(kind==='mixed2add'){
+    let r=buildMethod2Add(item.w1,item.n1,item.d1,item.w2,item.n2,item.d2);
+    let qHTML=`${mixedHTML(item.w1,item.n1,item.d1)} <span class="op-symbol">+</span> ${mixedHTML(item.w2,item.n2,item.d2)}`;
+    return {qHTML, steps:r.steps, answerHTML: finalAnswerHTML(r.result.n,r.result.d)};
+  }
+  if(kind==='mixed2sub'){
+    let r=buildMethod2Sub(item.w1,item.n1,item.d1,item.w2,item.n2,item.d2);
+    let qHTML=`${mixedHTML(item.w1,item.n1,item.d1)} <span class="op-symbol">−</span> ${mixedHTML(item.w2,item.n2,item.d2)}`;
+    return {qHTML, steps:r.steps, answerHTML: finalAnswerHTML(r.result.n,r.result.d)};
+  }
+  if(kind==='bracket'){
+    let steps=[];
+    let res=evalExprSteps(item,steps);
+    let qHTML=exprToHTML(item);
+    return {qHTML, steps, answerHTML: finalAnswerHTML(res.n,res.d)};
+  }
+}
+
+// ============================================================
+// SELECTION SCREEN + STEP-BY-STEP REVEAL ENGINE
+// ============================================================
+let currentSet=null,currentKind=null;
+
+function renderSelF(key,kind,btn,color,title){
+  btn._color=color; setActive(btn);
+  setTitle(title);
+  currentSet=key; currentKind=kind;
+  const data=DB[key];
+  const colorMap={teal:'sbt',orange:'sbo',pink:'sbp',purple:'sbu'};
+  const cls=colorMap[color];
+  const lblMap={teal:'t',orange:'o',pink:'p',purple:'u'};
+  let h=`<div class="slabel ${lblMap[color]}">📋 เลือกข้อที่ต้องการ</div>`;
+  h+=`<div class="sel-grid">`;
+  data.forEach((d,i)=>h+=`<button class="sel-btn ${cls}" onclick="loadQF(${i})">ข้อ ${i+1}</button>`);
+  h+=`</div>`;
+  setDC(h);
+  if(window.innerWidth<768)toggleSidebar();
+}
+
+function loadQF(idx){
+  const data=DB[currentSet];
+  const item=data[idx];
+  const sol=solveItem(currentKind,item);
+  const lblMap={f1:'t',f2:'o',f3:'p',f4:'u'};
+  const prefix=currentSet.slice(0,2);
+  let h=`<div class="slabel ${lblMap[prefix]}">ข้อ ${idx+1}</div>`;
+  h+=`<div class="expr-display">${sol.qHTML}</div>`;
+  h+=solShellHtml();
+  h+=navBtnsF(idx,data.length);
+  setDC(h);
+  solStart(sol.steps, `<p>คำตอบ: ${sol.answerHTML}</p>`);
+}
+
+function navBtnsF(i,len){
+  let h=`<div class="nav-btns">`;
+  if(i>0)h+=`<button class="btn-p" onclick="loadQF(${i-1})"><i class="ph-bold ph-arrow-left"></i> ข้อก่อน</button>`;
+  if(i<len-1)h+=`<button class="btn-n" onclick="loadQF(${i+1})">ข้อถัดไป <i class="ph-bold ph-arrow-right"></i></button>`;
+  h+=`</div>`;return h;
+}
+
+function solShellHtml(){
+  return `<div id="sol-steps"></div>
+    <div class="ctrl-bar">
+      <button class="btn-next" id="sol-next-btn" onclick="solNext()"><i class="ph-bold ph-arrow-right"></i> ขั้นตอนถัดไป</button>
+      <button class="btn-auto" onclick="solShowAll()"><i class="ph-bold ph-list-bullets"></i> แสดงทั้งหมด</button>
+      <button class="btn-reset" onclick="solReset()"><i class="ph-bold ph-arrow-counter-clockwise"></i> เริ่มใหม่</button>
+      <span class="step-info" id="sol-step-info"></span>
+    </div>
+    <div id="sol-answer" class="ans-box" style="display:none"></div>`;
+}
+
+let solState={steps:[],idx:-1,answer:''};
+
+function solStart(steps,answerHtml){
+  solState={steps,idx:-1,answer:answerHtml};
+  let sc=document.getElementById('sol-steps');
+  if(sc)sc.innerHTML='';
+  let ab=document.getElementById('sol-answer');
+  if(ab){ab.style.display='none';ab.innerHTML='';}
+  updateSolInfo();
+}
+function solNext(){
+  if(solState.idx>=solState.steps.length)return;
+  solState.idx++;
+  if(solState.idx<solState.steps.length){
+    let sc=document.getElementById('sol-steps');
+    if(sc){
+      let el=document.createElement('div');
+      el.className='sol-step';
+      el.innerHTML=`<span class="num">${solState.idx+1}</span>${solState.steps[solState.idx]}`;
+      sc.appendChild(el);
+    }
+  } else {
+    let ab=document.getElementById('sol-answer');
+    if(ab){ab.innerHTML=solState.answer;ab.style.display='block';ab.classList.add('fi');}
+  }
+  updateSolInfo();
+}
+function solShowAll(){
+  let guard=0;
+  while(solState.idx<solState.steps.length && guard<300){solNext();guard++;}
+}
+function solReset(){ solStart(solState.steps,solState.answer); }
+function updateSolInfo(){
+  let el=document.getElementById('sol-step-info');
+  if(el)el.textContent=`ขั้นตอน ${Math.max(0,solState.idx+1)} / ${solState.steps.length+1}`;
+}
+
+// ============================================================
+// EXAMPLE BLOCK (fully-worked demonstration, not hidden)
+// ============================================================
+function exampleBlockHTML(tag,qHTML,steps,answerHTML){
+  let h=`<div class="ccard"><span class="example-tag">${tag}</span><div class="expr-display">${qHTML}</div>`;
+  steps.forEach((s,i)=>{h+=`<div class="sol-step" style="opacity:1"><span class="num">${i+1}</span>${s}</div>`;});
+  h+=`<div class="ans-box"><p>คำตอบ: ${answerHTML}</p></div></div>`;
+  return h;
+}
+
+// ============================================================
+// BAR MODEL VISUAL (interactive playground)
+// ============================================================
+function buildBarHTML(n,d,color){
+  let segs='';
+  for(let i=0;i<d;i++){
+    segs+=`<div class="bar-seg ${i<n?'':'empty'}" style="${i<n?`background:${color}`:''}"></div>`;
+  }
+  return `<div class="bar-model">${segs}</div>`;
+}
+
+// ============================================================
+// SECTION 1 — pure fraction add/sub
+// ============================================================
+function loadConceptF(sec,btn){
+  btn._color=sec==='f1'?'teal':sec==='f2'?'orange':sec==='f3'?'pink':sec==='f4'?'purple':'cyan';
+  setActive(btn);
+  if(sec==='f1'){renderF1();setTitle('ส่วนที่ 1 — บวก/ลบเศษส่วน (บทเรียน + แอนิเมชัน)');}
+  else if(sec==='f2'){renderF2();setTitle('ส่วนที่ 2 — จำนวนคละ วิธีที่ 1 (บทเรียน + แอนิเมชัน)');}
+  else if(sec==='f3'){renderF3();setTitle('ส่วนที่ 3 — จำนวนคละ วิธีที่ 2 (บทเรียน + แอนิเมชัน)');}
+  else if(sec==='f4'){renderF4();setTitle('ส่วนที่ 4 — โจทย์ผสม (บทเรียน + แอนิเมชัน)');}
+  else{renderF5();setTitle('ส่วนที่ 5 — คลังทริคคิดเร็ว & ข้อควรระวัง');}
+  if(window.innerWidth<768)toggleSidebar();
+}
+
+function renderF1(){
+  let h=`<div class="slabel t">➗ ส่วนที่ 1 — การบวกและการลบเศษส่วน (ตัวส่วนไม่เท่ากัน)</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightbulb" style="color:#0d9488"></i> แนวคิดสำคัญ</h3>
+    <p>เศษส่วนจะบวกหรือลบตัวเศษกันตรงๆ ได้ก็ต่อเมื่อ <b style="color:#101827">ตัวส่วนเท่ากัน</b> เท่านั้น เพราะตัวส่วนบอกว่า "แบ่งออกเป็นกี่ส่วนเท่าๆ กัน" — ถ้าส่วนไม่เท่ากัน แปลว่าขนาดของแต่ละชิ้นไม่เท่ากัน จะเอาเศษมาบวกลบกันตรงๆ ไม่ได้</p>
+    <p>ดังนั้นขั้นแรกต้อง <b style="color:#0f766e">ทำตัวส่วนให้เท่ากันก่อน</b> โดยหา <b>ค.ร.น.</b> ของตัวส่วนทั้งหมด แล้วจึงนำตัวเศษมาบวกหรือลบกัน</p>
+    <div class="cpre">ขั้นตอน:  1) หา ค.ร.น. ของตัวส่วน
+         2) คูณทั้งเศษและส่วนให้ได้ส่วนเท่ากับ ค.ร.น.
+         3) บวก/ลบตัวเศษ (ตัวส่วนยังเท่าเดิม)
+         4) ทำให้เป็นเศษส่วนอย่างง่าย (ถ้ายังลดได้)
+         5) ถ้าเศษ ≥ ส่วน ให้แปลงเป็นจำนวนคละ</div>
+  </div>`;
+
+  h+=`<div class="anim-wrap">
+    <div class="anim-title"><i class="ph-fill ph-sliders-horizontal"></i> โมเดลแท่งเศษส่วน — ลองปรับตัวเลขเอง</div>
+    <div class="slider-row">
+      <label>ตัวเศษที่ 1</label>
+      <input type="range" min="1" max="11" value="1" id="bar-n1" oninput="updateBarModel()">
+      <span class="slider-val" id="bar-n1v">1</span>
+    </div>
+    <div class="slider-row">
+      <label>ตัวส่วนที่ 1</label>
+      <input type="range" min="2" max="12" value="2" id="bar-d1" oninput="updateBarModel()">
+      <span class="slider-val" id="bar-d1v">2</span>
+    </div>
+    <div class="slider-row">
+      <label>ตัวเศษที่ 2</label>
+      <input type="range" min="1" max="11" value="1" id="bar-n2" oninput="updateBarModel()">
+      <span class="slider-val" id="bar-n2v">1</span>
+    </div>
+    <div class="slider-row">
+      <label>ตัวส่วนที่ 2</label>
+      <input type="range" min="2" max="12" value="3" id="bar-d2" oninput="updateBarModel()">
+      <span class="slider-val" id="bar-d2v">3</span>
+    </div>
+    <div class="ctrl-bar" style="margin-top:0;margin-bottom:10px">
+      <button class="btn-reset" id="bar-op-add" onclick="setBarOp('add')" style="background:#0d9488;color:#fff">➕ บวก</button>
+      <button class="btn-reset" id="bar-op-sub" onclick="setBarOp('sub')">➖ ลบ</button>
+    </div>
+    <div id="bar-output"></div>
+  </div>`;
+
+  h+=exampleBlockHTML('ตัวอย่างที่ 1', ...(sol=>[sol.qHTML,sol.steps,sol.answerHTML])(solveItem('frac2',{n1:5,d1:6,op:'add',n2:3,d2:8})));
+  h+=exampleBlockHTML('ตัวอย่างที่ 2', ...(sol=>[sol.qHTML,sol.steps,sol.answerHTML])(solveItem('frac2',{n1:4,d1:5,op:'add',n2:7,d2:15})));
+  h+=exampleBlockHTML('ตัวอย่างที่ 3', ...(sol=>[sol.qHTML,sol.steps,sol.answerHTML])(solveItem('frac2',{n1:7,d1:9,op:'sub',n2:1,d2:6})));
+  h+=exampleBlockHTML('ตัวอย่างที่ 4', ...(sol=>[sol.qHTML,sol.steps,sol.answerHTML])(solveItem('frac2',{n1:7,d1:12,op:'sub',n2:4,d2:9})));
+
+  setDC(h);
+  setTimeout(updateBarModel,50);
+}
+
+let barOp='add';
+function setBarOp(op){
+  barOp=op;
+  document.getElementById('bar-op-add').style.background=op==='add'?'#0d9488':'';
+  document.getElementById('bar-op-add').style.color=op==='add'?'#fff':'';
+  document.getElementById('bar-op-sub').style.background=op==='sub'?'#0d9488':'';
+  document.getElementById('bar-op-sub').style.color=op==='sub'?'#fff':'';
+  updateBarModel();
+}
+
+function updateBarModel(){
+  let n1=+document.getElementById('bar-n1').value;
+  let d1=+document.getElementById('bar-d1').value;
+  let n2=+document.getElementById('bar-n2').value;
+  let d2=+document.getElementById('bar-d2').value;
+  if(n1>=d1){n1=d1-1;document.getElementById('bar-n1').value=n1;}
+  if(n2>=d2){n2=d2-1;document.getElementById('bar-n2').value=n2;}
+  document.getElementById('bar-n1v').textContent=n1;
+  document.getElementById('bar-d1v').textContent=d1;
+  document.getElementById('bar-n2v').textContent=n2;
+  document.getElementById('bar-d2v').textContent=d2;
+
+  let lcd=lcmOf(d1,d2);
+  let a=n1*(lcd/d1), b=n2*(lcd/d2);
+
+  let out=`
+    <div class="bar-row"><div class="bar-lbl">${fracHTML(n1,d1)} &nbsp;(ตัวส่วน ${d1} ส่วน)</div>${buildBarHTML(n1,d1,'#0d9488')}</div>
+    <div class="bar-row"><div class="bar-lbl">${fracHTML(n2,d2)} &nbsp;(ตัวส่วน ${d2} ส่วน)</div>${buildBarHTML(n2,d2,'#7c3aed')}</div>
+    <div style="text-align:center;color:#5c6b8a;font-size:13px;margin:8px 0">↓ ทำตัวส่วนให้เท่ากับ ค.ร.น. = ${lcd} ↓</div>
+    <div class="bar-row"><div class="bar-lbl">${fracHTML(n1,d1)} = ${fracHTML(a,lcd)}</div>${buildBarHTML(a,lcd,'#0d9488')}</div>
+    <div class="bar-row"><div class="bar-lbl">${fracHTML(n2,d2)} = ${fracHTML(b,lcd)}</div>${buildBarHTML(b,lcd,'#7c3aed')}</div>
+  `;
+  let sol=solveItem('frac2',{n1,d1,op:barOp,n2,d2});
+  out+=`<div class="expr-display" style="margin-top:12px">${sol.qHTML} <span class="op-symbol">=</span> ${sol.answerHTML}</div>`;
+  document.getElementById('bar-output').innerHTML=out;
+}
+
+// ============================================================
+// SECTION 2 — mixed numbers, Method 1 (convert to improper)
+// ============================================================
+function renderF2(){
+  let h=`<div class="slabel o">🔄 ส่วนที่ 2 — บวก/ลบจำนวนคละ วิธีที่ 1 (แปลงเป็นเศษเกิน)</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightbulb" style="color:#ea580c"></i> แนวคิดสำคัญ</h3>
+    <p>จำนวนคละ คือจำนวนที่มี "จำนวนเต็ม" ติดอยู่กับ "เศษส่วน" เช่น ${mixedHTML(2,1,3)} วิธีที่ 1 คือ <b style="color:#101827">แปลงจำนวนคละให้เป็นเศษเกินก่อน</b> แล้วจึงบวกหรือลบเหมือนเศษส่วนธรรมดาทุกประการ (ตามวิธีในส่วนที่ 1)</p>
+    <div class="cpre">แปลงจำนวนคละเป็นเศษเกิน:
+  จำนวนเต็ม × ตัวส่วน + ตัวเศษ  (ส่วนเท่าเดิม)</div>
+    <p>วิธีนี้ <b style="color:#c2410c">ใช้ได้กับทุกกรณี</b> ทั้งบวกและลบ ปลอดภัยที่สุด เพราะไม่ต้องกังวลเรื่องการยืมจำนวนเต็ม</p>
+  </div>`;
+
+  h+=`<div class="ccard"><h3><i class="ph-fill ph-plus" style="color:#0d9488"></i> ตัวอย่างการบวก</h3></div>`;
+  let s5=solveItem('mixed1add',{w1:1,n1:5,d1:6,w2:2,n2:4,d2:9});
+  h+=exampleBlockHTML('ตัวอย่างที่ 5 (วิธีที่ 1)',s5.qHTML,s5.steps,s5.answerHTML);
+  let s6=solveItem('mixed1add',{w1:3,n1:7,d1:8,w2:4,n2:5,d2:12});
+  h+=exampleBlockHTML('ตัวอย่างที่ 6 (วิธีที่ 1)',s6.qHTML,s6.steps,s6.answerHTML);
+
+  h+=`<div class="ccard"><h3><i class="ph-fill ph-minus" style="color:#db2777"></i> ตัวอย่างการลบ</h3></div>`;
+  let s7=solveItem('mixed1sub',{w1:3,n1:7,d1:8,w2:1,n2:5,d2:6});
+  h+=exampleBlockHTML('ตัวอย่างที่ 7 (วิธีที่ 1)',s7.qHTML,s7.steps,s7.answerHTML);
+  let s8=solveItem('mixed1sub',{w1:6,n1:1,d1:4,w2:3,n2:5,d2:6});
+  h+=exampleBlockHTML('ตัวอย่างที่ 8 (วิธีที่ 1)',s8.qHTML,s8.steps,s8.answerHTML);
+
+  h+=`<div class="limit-card"><span class="tag">ข้อควรจำ</span> เมื่อแปลงเป็นเศษเกินแล้ว ให้ทำตามขั้นตอนของ <b>ส่วนที่ 1</b> ทุกอย่าง (หา ค.ร.น. → ทำส่วนเท่ากัน → บวก/ลบเศษ → ทำให้เป็นเศษส่วนอย่างง่าย → แปลงกลับเป็นจำนวนคละ)</div>`;
+
+  setDC(h);
+}
+
+// ============================================================
+// SECTION 3 — mixed numbers, Method 2 (separate whole & fraction)
+// ============================================================
+function renderF3(){
+  let h=`<div class="slabel p">✂️ ส่วนที่ 3 — บวก/ลบจำนวนคละ วิธีที่ 2 (แยกจำนวนเต็ม-เศษส่วน)</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightbulb" style="color:#db2777"></i> แนวคิดสำคัญ</h3>
+    <p>วิธีที่ 2 คือ <b style="color:#101827">แยกจำนวนเต็มไปบวก/ลบกับจำนวนเต็ม</b> และ <b style="color:#101827">แยกเศษส่วนไปบวก/ลบกับเศษส่วน</b> แล้วจึงนำผลลัพธ์ทั้งสองส่วนมารวมกัน วิธีนี้เร็วกว่าเมื่อจำนวนเต็มมีค่ามาก แต่ต้องระวัง 2 จุดสำคัญ:</p>
+    <ol>
+      <li><b style="color:#0f766e">การบวก:</b> ถ้าผลบวกของเศษส่วนเป็นเศษเกิน (มากกว่าหรือเท่ากับ 1) ต้องแปลงเป็นจำนวนคละแล้วนำจำนวนเต็มไปรวมเพิ่ม</li>
+      <li><b style="color:#be185d">การลบ:</b> ถ้าเศษของตัวตั้งน้อยกว่าเศษของตัวลบ (หลังทำส่วนเท่ากันแล้ว) ต้อง <b>"ยืม" 1</b> จากจำนวนเต็มของตัวตั้งมาเป็นเศษส่วนเพิ่มก่อน</li>
+    </ol>
+  </div>`;
+
+  h+=`<div class="ccard"><h3><i class="ph-fill ph-plus" style="color:#0d9488"></i> ตัวอย่างการบวก (ไม่มีเศษเกิน)</h3></div>`;
+  let s5=solveItem('mixed2add',{w1:1,n1:5,d1:6,w2:2,n2:4,d2:9});
+  h+=exampleBlockHTML('ตัวอย่างที่ 5 (วิธีที่ 2)',s5.qHTML,s5.steps,s5.answerHTML);
+  let s6=solveItem('mixed2add',{w1:3,n1:7,d1:8,w2:4,n2:5,d2:12});
+  h+=exampleBlockHTML('ตัวอย่างที่ 6 (วิธีที่ 2)',s6.qHTML,s6.steps,s6.answerHTML);
+
+  h+=`<div class="ccard"><h3><i class="ph-fill ph-minus" style="color:#db2777"></i> ตัวอย่างการลบ</h3></div>`;
+  let s7=solveItem('mixed2sub',{w1:3,n1:7,d1:8,w2:1,n2:5,d2:6});
+  h+=exampleBlockHTML('ตัวอย่างที่ 7 (วิธีที่ 2 — ไม่ต้องยืม)',s7.qHTML,s7.steps,s7.answerHTML);
+  let s8=solveItem('mixed2sub',{w1:6,n1:1,d1:4,w2:3,n2:5,d2:6});
+  h+=exampleBlockHTML('ตัวอย่างที่ 8 (วิธีที่ 2 — ต้องยืม)',s8.qHTML,s8.steps,s8.answerHTML);
+
+  h+=`<div class="limit-card"><span class="tag">สังเกต</span> ตัวอย่างที่ 8 คือกรณีต้อง "ยืม" เพราะ ${fracHTML(1,4)} แปลงแล้วน้อยกว่า ${fracHTML(5,6)} แปลงแล้ว — ลองกดดูขั้นตอนด้านบนอีกครั้งเพื่อดูวิธียืมแบบละเอียด</div>`;
+
+  setDC(h);
+}
+
+// ============================================================
+// SECTION 4 — bracketed / mixed operations
+// ============================================================
+function renderF4(){
+  let h=`<div class="slabel u">🧩 ส่วนที่ 4 — โจทย์ผสม (การบวกและการลบที่มีวงเล็บ)</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-lightbulb" style="color:#7c3aed"></i> แนวคิดสำคัญ</h3>
+    <p>เมื่อโจทย์มีวงเล็บ ให้ยึดกฎเดิมของคณิตศาสตร์: <b style="color:#101827">คำนวณสิ่งที่อยู่ในวงเล็บก่อนเสมอ</b> ไม่ว่าวงเล็บจะอยู่ตำแหน่งซ้ายหรือขวาของโจทย์ก็ตาม จากนั้นจึงนำผลลัพธ์จากวงเล็บไปบวก/ลบกับจำนวนที่เหลือ</p>
+    <div class="cpre">ลำดับการคำนวณ:
+  1) คำนวณในวงเล็บให้เสร็จก่อน (ได้เศษส่วนอย่างง่าย 1 ค่า)
+  2) นำผลลัพธ์จากวงเล็บไปบวก/ลบกับจำนวนที่เหลือ
+  3) ทำให้คำตอบเป็นเศษส่วนอย่างง่ายเสมอ</div>
+  </div>`;
+
+  let s9=solveItem('bracket', OP('sub', OP('add', N(0,4,7), N(0,3,8)), N(0,5,28)));
+  h+=exampleBlockHTML('ตัวอย่างที่ 9',s9.qHTML,s9.steps,s9.answerHTML);
+  let s10=solveItem('bracket', OP('add', N(1,1,2), OP('add', N(2,1,3), N(3,1,4))));
+  h+=exampleBlockHTML('ตัวอย่างที่ 10',s10.qHTML,s10.steps,s10.answerHTML);
+
+  h+=`<div class="limit-card"><span class="tag">ข้อควรระวัง</span> ถ้าเครื่องหมายหน้าวงเล็บเป็น <b>"−"</b> (ลบ) และในวงเล็บมีทั้งบวกและลบปนกัน ให้คำนวณค่าภายในวงเล็บให้เสร็จสมบูรณ์ก่อน แล้วจึงนำผลลัพธ์ทั้งก้อนมาลบ อย่าลืมเครื่องหมายลบหน้าวงเล็บ</div>`;
+
+  setDC(h);
+}
+
+// ============================================================
+// SECTION 5 — trick library & common mistakes
+// ============================================================
+function renderF5(){
+  let h=`<div class="slabel c">⚡ ส่วนที่ 5 — คลังทริคคิดเร็ว & ข้อควรระวัง</div>`;
+
+  h+=`<div class="ccard"><h3><i class="ph-fill ph-lightning" style="color:#0891b2"></i> ทริคคิดเร็ว (Speed Tricks)</h3></div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 1</span> เช็คก่อนว่าตัวส่วนหนึ่ง<b>หารอีกตัวลงตัวหรือไม่</b> — ถ้าลงตัว ค.ร.น. คือตัวส่วนที่มากกว่าทันที เช่น ${fracHTML(1,4)} กับ ${fracHTML(1,8)} ใช้ ค.ร.น. = 8 ได้เลย ไม่ต้องหาใหม่</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 2</span> ถ้าตัวส่วนสองตัว<b>ไม่มีตัวประกอบร่วมกันเลย</b> (เช่น 5 กับ 9) ค.ร.น. = ตัวส่วนคูณกันตรงๆ ได้เลย</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 3</span> ทำให้เป็นเศษส่วนอย่างง่าย<b>ทุกครั้งก่อนตอบ</b> โดยหา ห.ร.ม. ของเศษกับส่วน แล้วหารทั้งคู่ด้วย ห.ร.ม. นั้น</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 4</span> เศษเกิน (เศษ ≥ ส่วน) ต้อง<b>แปลงเป็นจำนวนคละเสมอ</b>ในคำตอบสุดท้าย — คำตอบที่เป็นเศษเกินถือว่ายังไม่สมบูรณ์</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 5</span> จำนวนคละ <b>วิธีที่ 1</b> (แปลงเป็นเศษเกิน) ใช้ได้กับทุกกรณี ปลอดภัยที่สุด แนะนำให้ใช้เป็นหลักหากยังไม่มั่นใจ</div>`;
+
+  h+=`<div class="trickfast"><span class="tag">TRICK 6</span> จำนวนคละ <b>วิธีที่ 2</b> (แยกจำนวนเต็ม) จะเร็วกว่าเมื่อจำนวนเต็มมีค่ามาก แต่ต้องระวังเรื่อง "การยืม" ตอนลบให้ดี</div>`;
+
+  h+=`<div class="ccard"><h3><i class="ph-fill ph-warning" style="color:#c2410c"></i> ข้อจำกัด & จุดที่พลาดบ่อย</h3></div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 1</span> <b>ห้ามบวก/ลบตัวเศษกันตรงๆ</b> ถ้าตัวส่วนยังไม่เท่ากัน ต้องทำส่วนให้เท่ากันก่อนเสมอ</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 2</span> การยืม (borrowing) ใช้เฉพาะตอน<b>ลบ</b> เมื่อเศษของตัวตั้ง (หลังทำส่วนเท่ากัน) <b>น้อยกว่า</b>เศษของตัวลบเท่านั้น</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 3</span> <b>วงเล็บต้องคำนวณก่อนเสมอ</b> ไม่ว่าจะอยู่ตำแหน่งซ้ายหรือขวาของเครื่องหมายบวก/ลบ</div>`;
+
+  h+=`<div class="limit-card"><span class="tag">ข้อจำกัด 4</span> เมื่อคูณทั้งเศษและส่วนเพื่อทำส่วนให้เท่ากับ ค.ร.น. ต้อง<b>คูณทั้งเศษและส่วนด้วยจำนวนเดียวกัน</b> เสมอ มิฉะนั้นค่าของเศษส่วนจะเปลี่ยนไป</div>`;
+
+  h+=`<div class="ccard">
+    <h3><i class="ph-fill ph-check-circle" style="color:#15803d"></i> เช็คลิสต์ก่อนส่งคำตอบ</h3>
+    <ol style="margin-left:18px">
+      <li style="margin-bottom:6px">ตัวส่วนเท่ากันก่อนบวก/ลบเศษหรือยัง?</li>
+      <li style="margin-bottom:6px">คำตอบเป็นเศษส่วนอย่างง่ายแล้วหรือยัง (ลดได้อีกไหม)?</li>
+      <li style="margin-bottom:6px">ถ้าเศษ ≥ ส่วน แปลงเป็นจำนวนคละแล้วหรือยัง?</li>
+      <li style="margin-bottom:6px">ถ้ามีวงเล็บ คำนวณในวงเล็บก่อนหรือไม่?</li>
+    </ol>
+  </div>`;
+
+  setDC(h);
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+window.addEventListener('DOMContentLoaded',()=>{
+  let b=document.getElementById('default-btn');
+  if(b)loadConceptF('f1',b);
+});
+</script>
+</body>
+</html>
